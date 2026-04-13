@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-dark: #0f172a;
+  --color-brand-primary: #334155;
+  --color-brand-accent: #3b82f6;
+  --color-surface: #ffffff;
+  --color-background: #f8fafc;
+  --color-success-soft: #dcfce7;
+  --color-success: #15803d;
+  --color-error-soft: #fee2e2;
+  --color-error: #b91c1c;
+  --color-warning-soft: #fef3c7;
+  --color-warning: #b45309;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-brand-dark font-sans;
+  }
+}
+
+.card {
+  @apply bg-white rounded-xl shadow-sm border border-slate-100 p-6;
+}
+
+.btn-primary {
+  @apply bg-brand-accent hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium;
+}
+
+.badge {
+  @apply px-2 py-1 rounded-full text-xs font-semibold;
+}
+
+.badge-success {
+  @apply bg-success-soft text-success border border-green-200;
+}
+
+.badge-error {
+  @apply bg-error-soft text-error border border-red-200;
+}
+
+.badge-warning {
+  @apply bg-warning-soft text-warning border border-amber-200;
+}

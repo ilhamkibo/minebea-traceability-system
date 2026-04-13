@@ -1,0 +1,13 @@
+Project Shinsei Densi Minebea
+
+
+shinsei densi adalah pabrik yang memproduksi PCB.
+
+Flow project:
+
+1. Scan QR pada PCB untuk melakukan proses camera check
+2. Jika PCB tidak lolos camera check (NG) akan masuk ke proses visual check, jika PCB lolos camera check (OK), maka akan masuk ke proses ROM Writing
+3. PCB yang masuk ke proses visual check jika NG akan di scan QR ng dan masuk ke proses touch up, dan jika OK akan di scan QR ok dan masuk ke camera check lagi
+4. pada proses touch up akan dilakukan scan QR lagi dan masuk ke proses camera check lagi, jika sudah melakukan touch up 2x, maka akan masuk ke disposal
+5. Jika dari proses camera check ok, maka akan masuk ke proses rom writing (scan lagi)
+6. terakhir setelah rom writing  ada proses finish
