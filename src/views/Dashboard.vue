@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { usePcbData } from '../composables/usePcbData'
 
 const { pcbRecords, getDailyStats, getProcessDistribution } = usePcbData()
@@ -50,89 +50,95 @@ const series = computed(() => [
 </script>
 
 <template>
-  <div class="space-y-8">
-    <div class="flex justify-between items-end">
+  <div class="space-y-6 lg:space-y-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
       <div>
-        <h3 class="text-2xl font-bold text-slate-800">Production Overview</h3>
-        <p class="text-slate-500">Real-time traceability summary for Minebea plant.</p>
+        <h3 class="text-xl lg:text-2xl font-bold text-slate-800 tracking-tight">Production Overview</h3>
+        <p class="text-xs lg:text-sm text-slate-500">Traceability summary for Minebea plant.</p>
       </div>
-      <div class="flex space-x-2">
-        <select class="bg-white border border-slate-200 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 ring-brand-accent/20">
+      <div class="flex items-center space-x-2">
+        <select class="flex-1 sm:flex-none bg-white border border-slate-200 rounded-lg px-3 lg:px-4 py-2 text-xs lg:text-sm outline-none focus:ring-2 ring-brand-accent/20">
           <option>Last 7 Days</option>
           <option>This Month</option>
         </select>
-        <button class="btn-primary flex items-center">
-          <span class="material-icons text-sm mr-2">download</span>
-          Export Report
+        <button class="btn-primary flex items-center justify-center text-xs lg:text-sm">
+          <span class="material-icons text-sm lg:mr-2">download</span>
+          <span class="hidden lg:inline">Export Report</span>
         </button>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <div v-for="stat in stats" :key="stat.label" class="card flex items-center p-6">
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+      <div v-for="stat in stats" :key="stat.label" class="card flex items-center p-4 lg:p-6 transition-transform hover:scale-[1.02]">
         <div class="p-3 rounded-xl bg-slate-50 mr-4">
-          <span class="material-icons" :class="stat.color">{{ stat.icon }}</span>
+          <span class="material-icons text-xl lg:text-2xl" :class="stat.color">{{ stat.icon }}</span>
         </div>
         <div>
-          <p class="text-sm text-slate-500 font-medium">{{ stat.label }}</p>
-          <h4 class="text-2xl font-bold text-slate-800">{{ stat.value }}</h4>
+          <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">{{ stat.label }}</p>
+          <h4 class="text-xl lg:text-2xl font-black text-slate-800">{{ stat.value }}</h4>
         </div>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="card lg:col-span-2">
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+      <div class="card lg:col-span-2 overflow-hidden">
         <div class="flex justify-between items-center mb-6">
-          <h5 class="font-bold text-slate-800">Production Trend</h5>
-          <div class="flex items-center space-x-4 text-xs font-medium">
-             <div class="flex items-center"><span class="w-3 h-3 rounded-full bg-blue-500 mr-2"></span> Total</div>
-             <div class="flex items-center"><span class="w-3 h-3 rounded-full bg-emerald-500 mr-2"></span> OK</div>
+          <h5 class="font-bold text-slate-800 text-sm lg:text-base">Production Trend</h5>
+          <div class="flex items-center space-x-3 text-[10px] lg:text-xs font-bold uppercase tracking-wider">
+             <div class="flex items-center text-blue-600"><span class="w-2 h-2 rounded-full bg-blue-500 mr-1.5"></span> Total</div>
+             <div class="flex items-center text-emerald-600"><span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5"></span> OK</div>
           </div>
         </div>
-        <apexchart v-if="series[0].data.length > 0" height="300" :options="chartOptions" :series="series"></apexchart>
+        <div class="h-[250px] lg:h-[300px]">
+          <apexchart v-if="series[0].data.length > 0" height="100%" width="100%" :options="chartOptions" :series="series"></apexchart>
+        </div>
       </div>
 
-      <div class="card">
-        <h5 class="font-bold text-slate-800 mb-6">Process Distribution</h5>
-        <div class="space-y-6">
+      <div class="card flex flex-col">
+        <h5 class="font-bold text-slate-800 mb-6 text-sm lg:text-base">Process Distribution</h5>
+        <div class="space-y-6 flex-1">
           <div v-for="proc in distribution" :key="proc.name">
-            <div class="flex justify-between text-sm mb-2">
-              <span class="text-slate-600">{{ proc.name }}</span>
+            <div class="flex justify-between text-xs lg:text-sm mb-2">
+              <span class="text-slate-600 font-medium">{{ proc.name }}</span>
               <span class="font-bold text-slate-800">{{ proc.percentage }}%</span>
             </div>
-            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-              <div class="bg-brand-accent h-full transition-all duration-1000" :style="{ width: proc.percentage + '%' }"></div>
+            <div class="w-full bg-slate-100 h-1.5 lg:h-2 rounded-full overflow-hidden">
+              <div class="bg-brand-accent h-full transition-all duration-1000 ease-out" :style="{ width: proc.percentage + '%' }"></div>
             </div>
           </div>
         </div>
-        <div class="mt-8 p-4 bg-blue-50/50 rounded-xl border border-dashed border-blue-200 text-center">
-           <p class="text-xs text-blue-700 italic">"Production data is automatically synced with factory floor scanners."</p>
+        <div class="mt-8 p-4 bg-blue-50/50 rounded-xl border border-dashed border-blue-100 text-center">
+           <p class="text-[10px] lg:text-xs text-blue-700 italic font-medium">Auto-sync with factory floor sensors active.</p>
         </div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="flex justify-between items-center mb-6">
-        <h5 class="font-bold text-slate-800">Recent Scanned PCB</h5>
-        <RouterLink to="/traceability" class="text-brand-accent text-sm font-medium hover:underline">View All</RouterLink>
+    <!-- Recent Activity -->
+    <div class="card p-0 overflow-hidden">
+      <div class="flex justify-between items-center p-4 lg:p-6 border-b border-slate-50">
+        <h5 class="font-bold text-slate-800 text-sm lg:text-base">Recent Scanned PCB</h5>
+        <RouterLink to="/traceability" class="text-brand-accent text-xs lg:text-sm font-bold hover:underline">View All</RouterLink>
       </div>
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm">
+        <table class="w-full text-left text-xs lg:text-sm whitespace-nowrap">
           <thead>
-            <tr class="text-slate-400 border-b border-slate-100">
-              <th class="pb-4 font-medium">PCB ID / QR</th>
-              <th class="pb-4 font-medium">Last Process</th>
-              <th class="pb-4 font-medium">Timestamp</th>
-              <th class="pb-4 font-medium">Status</th>
+            <tr class="bg-slate-50/50 text-slate-400 uppercase tracking-widest text-[10px] lg:text-xs">
+              <th class="px-4 lg:px-6 py-4 font-black">PCB ID</th>
+              <th class="px-4 lg:px-6 py-4 font-black">Last Process</th>
+              <th class="px-4 lg:px-6 py-4 font-black hidden sm:table-cell">Timestamp</th>
+              <th class="px-4 lg:px-6 py-4 font-black">Status</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-50">
-            <tr v-for="pcb in pcbRecords.slice(0, 10)" :key="pcb.id" class="hover:bg-slate-50/50 transition-colors cursor-pointer" @click="$router.push({ name: 'Traceability', query: { qr: pcb.id }})">
-              <td class="py-4 font-bold text-slate-700">{{ pcb.id }}</td>
-              <td class="py-4 text-slate-600">{{ pcb.currentStep }}</td>
-              <td class="py-4 text-slate-500">{{ new Date(pcb.lastUpdate).toLocaleString() }}</td>
-              <td class="py-4">
-                <span :class="pcb.currentStatus === 'OK' ? 'badge badge-success' : 'badge badge-error'">
+            <tr v-for="pcb in pcbRecords.slice(0, 8)" :key="pcb.id" class="hover:bg-slate-50/50 transition-colors cursor-pointer group" @click="$router.push({ name: 'Traceability', query: { qr: pcb.id }})">
+              <td class="px-4 lg:px-6 py-4 font-bold text-slate-700 group-hover:text-brand-accent transition-colors">{{ pcb.id }}</td>
+              <td class="px-4 lg:px-6 py-4 text-slate-600 font-medium">{{ pcb.currentStep }}</td>
+              <td class="px-4 lg:px-6 py-4 text-slate-500 hidden sm:table-cell">{{ new Date(pcb.lastUpdate).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) }}</td>
+              <td class="px-4 lg:px-6 py-4">
+                <span :class="pcb.currentStatus === 'OK' ? 'badge badge-success' : 'badge badge-error'" class="px-2 lg:px-3">
                   {{ pcb.currentStatus }}
                 </span>
               </td>
