@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue'
 import { usePcbData } from '../composables/usePcbData'
 
@@ -23,12 +23,12 @@ const distribution = computed(() => getProcessDistribution())
 
 const chartOptions = computed(() => ({
   chart: {
-    type: 'area',
+    type: 'area' as const,
     toolbar: { show: false },
     fontFamily: 'Inter, sans-serif'
   },
   colors: ['#3b82f6', '#10b981'],
-  stroke: { curve: 'smooth', width: 2 },
+  stroke: { curve: 'smooth' as const, width: 2 },
   fill: {
     type: 'gradient',
     gradient: { shadeIntensity: 1, opacityFrom: 0.45, opacityTo: 0.05 }

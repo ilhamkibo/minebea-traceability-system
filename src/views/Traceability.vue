@@ -1,14 +1,14 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { usePcbData } from '../composables/usePcbData'
+import { usePcbData, type PcbRecord } from '../composables/usePcbData'
 
 const route = useRoute()
 const router = useRouter()
 const { findByQr } = usePcbData()
 
 const searchQuery = ref('')
-const searchResult = ref(null)
+const searchResult = ref<PcbRecord | undefined>(undefined)
 
 const handleSearch = () => {
   if (!searchQuery.value) return
@@ -18,15 +18,15 @@ const handleSearch = () => {
 
 onMounted(() => {
   if (route.query.qr) {
-    searchQuery.value = route.query.qr
+    searchQuery.value = route.query.qr as string
     handleSearch()
   }
 })
 
 watch(() => route.query.qr, (newQr) => {
   if (newQr) {
-    searchQuery.value = newQr
-    searchResult.value = findByQr(newQr)
+    searchQuery.value = newQr as string
+    searchResult.value = findByQr(newQr as string)
   }
 })
 </script>
@@ -113,7 +113,5 @@ watch(() => route.query.qr, (newQr) => {
         </div>
       </div>
     </div>
-
-    <!-- Empty/Initial States remain same but with responsive spacing -->
   </div>
 </template>

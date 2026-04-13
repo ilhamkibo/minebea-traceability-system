@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import { RouterView, RouterLink, useRoute } from 'vue-router'
 const route = useRoute()
@@ -6,7 +6,13 @@ const route = useRoute()
 // Single state for sidebar visibility
 const isSidebarOpen = ref(true)
 
-const menuItems = [
+interface MenuItem {
+  name: string;
+  path: string;
+  icon: string;
+}
+
+const menuItems: MenuItem[] = [
   { name: 'Dashboard', path: '/', icon: 'dashboard' },
   { name: 'Traceability', path: '/traceability', icon: 'search' },
   { name: 'Camera Check', path: '/process/camera-check', icon: 'camera' },
@@ -18,11 +24,16 @@ const menuItems = [
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value
 }
+const handleMenuClick = () => {
+  if (window.innerWidth < 1024) {
+    isSidebarOpen.value = false
+  }
+}
 </script>
 
 <template>
   <div class="flex h-screen bg-background font-sans overflow-hidden">
-    <!-- Mobile Overlay (only visible on small screens when open) -->
+    <!-- Mobile Overlay -->
     <div 
       v-if="isSidebarOpen" 
       @click="isSidebarOpen = false"
@@ -51,7 +62,7 @@ const toggleSidebar = () => {
           v-for="item in menuItems" 
           :key="item.path"
           :to="item.path"
-          @click="window.innerWidth < 1024 ? isSidebarOpen = false : null"
+          @click="handleMenuClick"
           class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 group"
           :class="route.path === item.path ? 'bg-brand-accent text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
         >
@@ -83,7 +94,7 @@ const toggleSidebar = () => {
           <!-- Hamburger Button (Left Side) -->
           <button 
             @click="toggleSidebar" 
-            class="p-2 mr-4 text-slate-500 hover:bg-slate-50 rounded-lg transition-colors"
+            class="p-2 mt-2 mr-4 text-slate-500 hover:bg-slate-50 rounded-lg transition-colors"
             title="Toggle Sidebar"
           >
             <span class="material-icons">{{ isSidebarOpen ? 'menu_open' : 'menu' }}</span>

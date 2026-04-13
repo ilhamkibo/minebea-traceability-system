@@ -1,20 +1,33 @@
 import { ref } from 'vue'
 import staticData from '../data/pcbData.json'
 
-// Make it a singleton to persist data across component mounts
-const pcbRecords = ref(staticData)
+export interface HistoryLog {
+  step: string;
+  status: 'OK' | 'NG';
+  time: string;
+}
+
+export interface PcbRecord {
+  id: string;
+  currentStatus: 'OK' | 'NG' | 'Disposal';
+  currentStep: string;
+  lastUpdate: string;
+  history: HistoryLog[];
+}
+
+// Singleton to persist data across component mounts
+const pcbRecords = ref<PcbRecord[]>(staticData as PcbRecord[])
 
 export function usePcbData() {
-  const findByQr = (qr) => {
-    if (!qr) return null
-    // Trim and case-insensitive search
+  const findByQr = (qr: string | null): PcbRecord | undefined => {
+    if (!qr) return undefined
     const cleanQr = qr.trim().toLowerCase()
     return pcbRecords.value.find(p => p.id.toLowerCase() === cleanQr)
   }
 
   const getDailyStats = () => {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-    const last7Days = []
+    const last7Days: { date: string, dayName: string, total: number, ok: number }[] = []
     
     for (let i = 6; i >= 0; i--) {
       const d = new Date()
