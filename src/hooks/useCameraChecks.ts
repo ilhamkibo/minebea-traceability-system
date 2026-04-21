@@ -8,7 +8,7 @@ export function useCameraChecks(params: CameraCheckParams) {
         queryKey: ['camera-checks', params],
         queryFn: () => cameraCheckService.getCameraChecks(params),
         staleTime: 1000 * 10,
-        refetchInterval: 15000,
+        // refetchInterval: 15000,
         refetchOnWindowFocus: true,
     })
 }

@@ -27,6 +27,14 @@ const routes = [
     }
   },
   {
+    path: '/process/camera-check',
+    name: 'Camera Check',
+    component: () => import('../views/CameraCheck.vue'),
+    meta: {
+      title: 'Camera Check'
+    }
+  },
+  {
     path: '/process/:id',
     name: 'Process Detail',
     component: () => import('../views/ProcessDetail.vue'),

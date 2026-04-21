@@ -10,10 +10,16 @@ const queryClient = new QueryClient({
         queries: {
             staleTime: 1000 * 60, // 1 menit
             refetchOnWindowFocus: true,
+            refetchInterval(query) {
+                if (document.visibilityState !== 'visible') {
+                    return false
+                }
+            },
             retry: 1,
         },
     },
 })
+
 const app = createApp(App)
 app.use(router)
 app.use(VueApexCharts)
