@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { usePcbData } from '../composables/usePcbData'
+import { ScanLine, CheckCircle, XCircle, TrendingUp, Download } from 'lucide-vue-next'
 
 const { pcbRecords, getDailyStats, getProcessDistribution } = usePcbData()
 
@@ -11,10 +12,10 @@ const stats = computed(() => {
   const yield_rate = total > 0 ? ((ok / total) * 100).toFixed(1) : 0
   
   return [
-    { label: 'Total Scanned', value: total, icon: 'qr_code_scanner', color: 'text-brand-accent' },
-    { label: 'Total OK', value: ok, icon: 'check_circle', color: 'text-success' },
-    { label: 'Disposal (NG)', value: disposal, icon: 'cancel', color: 'text-error' },
-    { label: 'Yield Rate', value: `${yield_rate}%`, icon: 'trending_up', color: 'text-info' },
+    { label: 'Total Scanned', value: total, icon: ScanLine, color: 'text-brand-accent' },
+    { label: 'Total OK', value: ok, icon: CheckCircle, color: 'text-emerald-500' },
+    { label: 'Disposal (NG)', value: disposal, icon: XCircle, color: 'text-rose-500' },
+    { label: 'Yield Rate', value: `${yield_rate}%`, icon: TrendingUp, color: 'text-blue-500' },
   ]
 })
 
@@ -37,7 +38,8 @@ const chartOptions = computed(() => ({
   xaxis: {
     categories: dailyData.value.categories,
     axisBorder: { show: false },
-    axisTicks: { show: false }
+    axisTicks: { show: false },
+    labels: { style: { fontSize: '10px' } }
   },
   grid: { borderColor: '#f1f5f9' },
   yaxis: { show: false }
@@ -50,95 +52,95 @@ const series = computed(() => [
 </script>
 
 <template>
-  <div class="space-y-6 lg:space-y-8">
+  <div class="space-y-4">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
       <div>
-        <h3 class="text-xl lg:text-2xl font-bold text-slate-800 tracking-tight">Production Overview</h3>
-        <p class="text-xs lg:text-sm text-slate-500">Traceability summary for Minebea plant.</p>
+        <h3 class="text-lg lg:text-xl font-bold text-slate-800 tracking-tight">Production Overview</h3>
+        <p class="text-[10px] lg:text-xs text-slate-500">Traceability summary for Minebea plant.</p>
       </div>
       <div class="flex items-center space-x-2">
-        <select class="flex-1 sm:flex-none bg-white border border-slate-200 rounded-lg px-3 lg:px-4 py-2 text-xs lg:text-sm outline-none focus:ring-2 ring-brand-accent/20">
+        <select class="flex-1 sm:flex-none bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-[10px] lg:text-xs outline-none focus:border-brand-accent transition-colors">
           <option>Last 7 Days</option>
           <option>This Month</option>
         </select>
-        <button class="btn-primary flex items-center justify-center text-xs lg:text-sm">
-          <span class="material-icons text-sm lg:mr-2">download</span>
+        <button class="bg-brand-dark text-white px-3 py-1.5 rounded-lg flex items-center justify-center text-[10px] lg:text-xs hover:bg-slate-800 transition-colors font-bold">
+          <Download class="w-3.5 h-3.5 lg:w-4 lg:h-4 mr-1.5" />
           <span class="hidden lg:inline">Export Report</span>
         </button>
       </div>
     </div>
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-      <div v-for="stat in stats" :key="stat.label" class="card flex items-center p-4 lg:p-6 transition-transform hover:scale-[1.02]">
-        <div class="p-3 rounded-xl bg-slate-50 mr-4">
-          <span class="material-icons text-xl lg:text-2xl" :class="stat.color">{{ stat.icon }}</span>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+      <div v-for="stat in stats" :key="stat.label" class="bg-white rounded-xl shadow-sm border border-slate-100 flex flex-col justify-center p-3 lg:p-4 hover:border-slate-200 transition-colors">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-[9px] lg:text-[10px] text-slate-500 font-bold uppercase tracking-wider">{{ stat.label }}</p>
+          <div class="p-1.5 rounded-lg bg-slate-50">
+            <component :is="stat.icon" class="w-4 h-4 lg:w-5 lg:h-5" :class="stat.color" />
+          </div>
         </div>
-        <div>
-          <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">{{ stat.label }}</p>
-          <h4 class="text-xl lg:text-2xl font-black text-slate-800">{{ stat.value }}</h4>
-        </div>
+        <h4 class="text-lg lg:text-xl font-black text-slate-800 leading-none">{{ stat.value }}</h4>
       </div>
     </div>
 
     <!-- Charts Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
-      <div class="card lg:col-span-2 overflow-hidden">
-        <div class="flex justify-between items-center mb-6">
-          <h5 class="font-bold text-slate-800 text-sm lg:text-base">Production Trend</h5>
-          <div class="flex items-center space-x-3 text-[10px] lg:text-xs font-bold uppercase tracking-wider">
-             <div class="flex items-center text-blue-600"><span class="w-2 h-2 rounded-full bg-blue-500 mr-1.5"></span> Total</div>
-             <div class="flex items-center text-emerald-600"><span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5"></span> OK</div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:gap-4">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-100 lg:col-span-2 p-3 lg:p-4">
+        <div class="flex justify-between items-center mb-3">
+          <h5 class="font-bold text-slate-800 text-xs lg:text-sm">Production Trend</h5>
+          <div class="flex items-center space-x-3 text-[9px] font-bold uppercase tracking-wider">
+             <div class="flex items-center text-blue-600"><span class="w-1.5 h-1.5 rounded-full bg-blue-500 mr-1"></span> Total</div>
+             <div class="flex items-center text-emerald-600"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1"></span> OK</div>
           </div>
         </div>
-        <div class="h-[250px] lg:h-[300px]">
+        <div class="h-[180px] lg:h-[220px]">
           <apexchart v-if="series[0].data.length > 0" height="100%" width="100%" :options="chartOptions" :series="series"></apexchart>
         </div>
       </div>
 
-      <div class="card flex flex-col">
-        <h5 class="font-bold text-slate-800 mb-6 text-sm lg:text-base">Process Distribution</h5>
-        <div class="space-y-6 flex-1">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-100 flex flex-col p-3 lg:p-4">
+        <h5 class="font-bold text-slate-800 mb-3 text-xs lg:text-sm">Process Distribution</h5>
+        <div class="space-y-3 flex-1 overflow-y-auto pr-1 pb-1">
           <div v-for="proc in distribution" :key="proc.name">
-            <div class="flex justify-between text-xs lg:text-sm mb-2">
+            <div class="flex justify-between text-[10px] lg:text-xs mb-1">
               <span class="text-slate-600 font-medium">{{ proc.name }}</span>
               <span class="font-bold text-slate-800">{{ proc.percentage }}%</span>
             </div>
-            <div class="w-full bg-slate-100 h-1.5 lg:h-2 rounded-full overflow-hidden">
+            <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
               <div class="bg-brand-accent h-full transition-all duration-1000 ease-out" :style="{ width: proc.percentage + '%' }"></div>
             </div>
           </div>
         </div>
-        <div class="mt-8 p-4 bg-blue-50/50 rounded-xl border border-dashed border-blue-100 text-center">
-           <p class="text-[10px] lg:text-xs text-blue-700 italic font-medium">Auto-sync with factory floor sensors active.</p>
+        <div class="mt-3 p-2 bg-blue-50/50 rounded-lg border border-dashed border-blue-100 text-center shrink-0">
+           <p class="text-[9px] text-blue-700 italic font-medium leading-tight">Auto-sync with active sensors.</p>
         </div>
       </div>
     </div>
 
     <!-- Recent Activity -->
-    <div class="card p-0 overflow-hidden">
-      <div class="flex justify-between items-center p-4 lg:p-6 border-b border-slate-50">
-        <h5 class="font-bold text-slate-800 text-sm lg:text-base">Recent Scanned PCB</h5>
-        <RouterLink to="/traceability" class="text-brand-accent text-xs lg:text-sm font-bold hover:underline">View All</RouterLink>
+    <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+      <div class="flex justify-between items-center px-4 py-3 border-b border-slate-50">
+        <h5 class="font-bold text-slate-800 text-xs lg:text-sm">Recent Scanned PCB</h5>
+        <RouterLink to="/traceability" class="text-brand-accent text-[10px] lg:text-xs font-bold hover:underline">View All</RouterLink>
       </div>
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs lg:text-sm whitespace-nowrap">
+        <table class="w-full text-left text-xs whitespace-nowrap">
           <thead>
-            <tr class="bg-slate-50/50 text-slate-400 uppercase tracking-widest text-[10px] lg:text-xs">
-              <th class="px-4 lg:px-6 py-4 font-black">PCB ID</th>
-              <th class="px-4 lg:px-6 py-4 font-black">Last Process</th>
-              <th class="px-4 lg:px-6 py-4 font-black hidden sm:table-cell">Timestamp</th>
-              <th class="px-4 lg:px-6 py-4 font-black">Status</th>
+            <tr class="bg-slate-50/50 text-slate-400 uppercase tracking-wider text-[9px] lg:text-[10px]">
+              <th class="px-4 py-2 font-black">PCB ID</th>
+              <th class="px-4 py-2 font-black">Last Process</th>
+              <th class="px-4 py-2 font-black hidden sm:table-cell">Timestamp</th>
+              <th class="px-4 py-2 font-black text-right">Status</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-50">
             <tr v-for="pcb in pcbRecords.slice(0, 8)" :key="pcb.id" class="hover:bg-slate-50/50 transition-colors cursor-pointer group" @click="$router.push({ name: 'Traceability', query: { qr: pcb.id }})">
-              <td class="px-4 lg:px-6 py-4 font-bold text-slate-700 group-hover:text-brand-accent transition-colors">{{ pcb.id }}</td>
-              <td class="px-4 lg:px-6 py-4 text-slate-600 font-medium">{{ pcb.currentStep }}</td>
-              <td class="px-4 lg:px-6 py-4 text-slate-500 hidden sm:table-cell">{{ new Date(pcb.lastUpdate).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) }}</td>
-              <td class="px-4 lg:px-6 py-4">
-                <span :class="pcb.currentStatus === 'OK' ? 'badge badge-success' : 'badge badge-error'" class="px-2 lg:px-3">
+              <td class="px-4 py-1.5 lg:py-2 font-bold text-slate-700 group-hover:text-brand-accent transition-colors">{{ pcb.id }}</td>
+              <td class="px-4 py-1.5 lg:py-2 text-slate-600 font-medium text-xs">{{ pcb.currentStep }}</td>
+              <td class="px-4 py-1.5 lg:py-2 text-slate-500 hidden sm:table-cell text-[10px]">{{ new Date(pcb.lastUpdate).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) }}</td>
+              <td class="px-4 py-1.5 lg:py-2 text-right">
+                <span :class="pcb.currentStatus === 'OK' ? 'bg-emerald-200 text-emerald-700' : 'bg-rose-100 text-rose-700'" class="inline-flex items-center justify-center rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-tighter">
                   {{ pcb.currentStatus }}
                 </span>
               </td>

@@ -28,7 +28,7 @@ export function usePcbData() {
   const getDailyStats = () => {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
     const last7Days: { date: string, dayName: string, total: number, ok: number }[] = []
-    
+
     for (let i = 6; i >= 0; i--) {
       const d = new Date()
       d.setDate(d.getDate() - i)
