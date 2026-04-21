@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
 @theme {
   --color-brand-dark: #0f172a;
   --color-brand-primary: #334155;
@@ -16,12 +18,12 @@
 
 @layer base {
   body {
-    @apply bg-background text-brand-dark font-sans;
+    @apply bg-background text-brand-dark font-sans dark:bg-slate-900 dark:text-slate-200 transition-colors duration-200;
   }
 }
 
 .card {
-  @apply bg-white rounded-xl shadow-sm border border-slate-100 p-6;
+  @apply bg-white rounded-xl shadow-sm border border-slate-100 p-6 dark:bg-slate-800 dark:border-slate-700 transition-colors duration-200;
 }
 
 .btn-primary {

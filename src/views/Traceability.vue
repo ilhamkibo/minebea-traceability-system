@@ -102,8 +102,8 @@ const pagesToShow = computed(() => {
 <template>
   <div class="max-w-6xl mx-auto space-y-4 pb-8">
     <div class="text-center space-y-1 mb-4">
-      <h3 class="text-lg lg:text-xl font-black text-slate-800 tracking-tight">Traceability Engine</h3>
-      <p class="text-[10px] lg:text-xs text-slate-500 px-4">Track every touchpoint of your PCB production line</p>
+      <h3 class="text-lg lg:text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight">Traceability Engine</h3>
+      <p class="text-[10px] lg:text-xs text-slate-500 dark:text-slate-400 px-4">Track every touchpoint of your PCB production line</p>
     </div>
 
     <!-- Search / Filter -->
@@ -113,17 +113,17 @@ const pagesToShow = computed(() => {
         @input="handleSearch"
         type="text" 
         placeholder="Filter by PCB ID, Status, or Step..."
-        class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 pl-9 outline-none focus:border-brand-accent transition-all shadow-sm text-xs lg:text-sm"
+        class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 pl-9 outline-none focus:border-brand-accent transition-all shadow-sm text-xs lg:text-sm text-slate-800 dark:text-slate-200"
       />
       <Search class="absolute left-4 lg:left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
     </div>
 
     <!-- PCB Data Table -->
-    <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both">
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both transition-colors">
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse whitespace-nowrap">
           <thead>
-            <tr class="bg-slate-50/50 text-slate-400 border-b border-slate-100 text-[9px] lg:text-[10px] uppercase tracking-wider">
+            <tr class="bg-slate-50/50 dark:bg-slate-800/50 text-slate-400 dark:text-slate-500 border-b border-slate-100 dark:border-slate-700 text-[9px] lg:text-[10px] uppercase tracking-wider">
               <th class="px-4 py-2.5 font-bold">PCB ID</th>
               <th class="px-4 py-2.5 font-bold">Current Step</th>
               <th class="px-4 py-2.5 font-bold hidden sm:table-cell">Last Update</th>
@@ -131,11 +131,11 @@ const pagesToShow = computed(() => {
               <th class="px-4 py-2.5 font-bold text-center">Action</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-50 text-[11px] lg:text-xs">
+          <tbody class="divide-y divide-slate-50 dark:divide-slate-700/50 text-[11px] lg:text-xs">
             <template v-if="paginatedRecords.length > 0">
-              <tr v-for="pcb in paginatedRecords" :key="pcb.id" class="hover:bg-slate-50/70 transition-colors group">
-                <td class="px-4 py-2.5 font-bold text-slate-800">{{ pcb.id }}</td>
-                <td class="px-4 py-2.5 text-slate-600">{{ pcb.currentStep }}</td>
+              <tr v-for="pcb in paginatedRecords" :key="pcb.id" class="hover:bg-slate-50/70 dark:hover:bg-slate-700/50 transition-colors group">
+                <td class="px-4 py-2.5 font-bold text-slate-800 dark:text-slate-200">{{ pcb.id }}</td>
+                <td class="px-4 py-2.5 text-slate-600 dark:text-slate-300">{{ pcb.currentStep }}</td>
                 <td class="px-4 py-2.5 text-slate-400 text-[10px] hidden sm:table-cell">
                   {{ new Date(pcb.lastUpdate).toLocaleString('en-GB') }}
                 </td>
@@ -147,7 +147,7 @@ const pagesToShow = computed(() => {
                 <td class="px-4 py-2.5 text-center">
                   <button 
                     @click="openDetails(pcb)"
-                    class="bg-brand-dark/5 hover:bg-brand-dark text-brand-dark hover:text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100"
+                    class="bg-brand-dark/5 dark:bg-white/10 hover:bg-brand-dark dark:hover:bg-white/20 text-brand-dark dark:text-white hover:text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100"
                   >
                     Details
                   </button>
@@ -164,9 +164,9 @@ const pagesToShow = computed(() => {
       </div>
       
       <!-- Pagination Controls -->
-      <div v-if="totalPages > 1" class="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-2.5 border-t border-slate-100 bg-slate-50/50">
-        <span class="text-[10px] text-slate-500">
-          Page <span class="font-bold text-slate-800">{{ currentPage }}</span> of <span class="font-bold text-slate-800">{{ totalPages }}</span>
+      <div v-if="totalPages > 1" class="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-2.5 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+        <span class="text-[10px] text-slate-500 dark:text-slate-400">
+          Page <span class="font-bold text-slate-800 dark:text-slate-200">{{ currentPage }}</span> of <span class="font-bold text-slate-800 dark:text-slate-200">{{ totalPages }}</span>
         </span>
         <div class="flex items-center space-x-1">
           <button 
@@ -184,7 +184,7 @@ const pagesToShow = computed(() => {
               @click="goToPage(page as number)"
               :class="[
                 'min-w-[24px] h-6 px-1 rounded-md text-[10px] font-bold transition-colors',
-                currentPage === page ? 'bg-brand-dark text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+                currentPage === page ? 'bg-brand-dark dark:bg-slate-700 text-white' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
               ]"
             >
                {{ page }}
@@ -194,7 +194,7 @@ const pagesToShow = computed(() => {
           <button 
             @click="nextPage" 
             :disabled="currentPage === totalPages"
-            class="p-1 rounded-md bg-white border border-slate-200 text-slate-500 hover:bg-slate-100 disabled:opacity-50 transition-colors"
+            class="p-1 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50 transition-colors"
           >
             <ChevronRight class="w-3.5 h-3.5" />
           </button>
@@ -203,16 +203,16 @@ const pagesToShow = computed(() => {
     </div>
 
     <!-- Modal for PCB Details -->
-    <div v-if="isModalOpen && selectedPcb" class="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-      <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="closeModal"></div>
+    <div v-if="isModalOpen && selectedPcb" class="fixed inset-0 z-100 flex items-center justify-center p-3 sm:p-4" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+      <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="closeModal"></div>
       
-      <div class="relative bg-slate-50 w-full max-w-2xl max-h-[85vh] rounded-2xl shadow-xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
-        <div class="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-100 z-10 sticky top-0 shrink-0">
-          <h3 class="text-sm font-black text-slate-800 flex items-center tracking-tight">
+      <div class="relative bg-slate-50 dark:bg-slate-900 w-full max-w-2xl max-h-[85vh] rounded-2xl shadow-xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 border border-slate-200 dark:border-slate-800">
+        <div class="flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 z-10 sticky top-0 shrink-0 transition-colors">
+          <h3 class="text-sm font-black text-slate-800 dark:text-slate-100 flex items-center tracking-tight">
             <ScanLine class="text-brand-accent mr-1.5 w-4 h-4" />
             Timeline Details
           </h3>
-          <button @click="closeModal" class="p-1.5 rounded-full hover:bg-slate-100 text-slate-400 transition-colors">
+          <button @click="closeModal" class="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 transition-colors">
             <X class="w-4 h-4" />
           </button>
         </div>
@@ -236,23 +236,23 @@ const pagesToShow = computed(() => {
           </div>
 
           <!-- Timeline -->
-          <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 lg:p-5 relative z-0">
-            <h5 class="font-bold text-slate-800 mb-4 flex items-center text-[11px] lg:text-xs">
+          <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 p-4 lg:p-5 relative z-0 transition-colors">
+            <h5 class="font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center text-[11px] lg:text-xs">
               <RouteIcon class="mr-1.5 text-brand-accent w-3.5 h-3.5" />
               Journey Log
             </h5>
             
-            <div class="relative pl-5 space-y-4 before:content-[''] before:absolute before:left-[9px] before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-100">
+            <div class="relative pl-5 space-y-4 before:content-[''] before:absolute before:left-[9px] before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-100 dark:before:bg-slate-700">
               <div v-for="(log, idx) in selectedPcb.history" :key="idx" class="relative group">
                 <!-- Timeline Dot -->
                 <div class="absolute -left-[17.5px] top-1.5 w-2.5 h-2.5 rounded-full border-2 border-white shadow-sm z-10"
                      :class="log.status === 'OK' ? 'bg-emerald-500' : 'bg-rose-500'">
                 </div>
                 
-                <div class="flex items-center justify-between gap-2 p-2 rounded-lg hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                <div class="flex items-center justify-between gap-2 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-700">
                   <div class="min-w-0">
-                    <h6 class="font-bold text-slate-700 text-xs leading-tight">{{ log.step }}</h6>
-                    <div class="flex items-center mt-0.5 text-slate-400 space-x-1.5">
+                    <h6 class="font-bold text-slate-700 dark:text-slate-200 text-xs leading-tight">{{ log.step }}</h6>
+                    <div class="flex items-center mt-0.5 text-slate-400 dark:text-slate-500 space-x-1.5">
                        <span class="text-[9px] font-bold uppercase tracking-wider">
                          {{ new Date(log.time).toLocaleDateString([], { month: 'short', day: 'numeric' }) }}
                        </span>
