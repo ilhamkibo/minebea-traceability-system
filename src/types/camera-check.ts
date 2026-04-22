@@ -9,5 +9,5 @@ export interface CameraCheck {
     id: number;
     qrCode: string;
     judgement: string;
-    timestamp: string;
+    createdAt: string;
 }

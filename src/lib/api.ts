@@ -18,12 +18,9 @@ api.interceptors.response.use(
             window.location.href = '/login'
         }
 
-        const message =
-            error.response?.data?.message ||
-            error.message ||
-            'Unexpected error'
-
-        return Promise.reject(new Error(message))
+        // Return the full error object rather than stripping it to a simple Error(message)
+        // so that we can type it as AxiosError<ApiError> and access specific fields like `errors`
+        return Promise.reject(error)
     }
 )
 

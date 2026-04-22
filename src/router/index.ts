@@ -1,4 +1,4 @@
-import { formatTitle } from '../utils/formatTitle'
+import { formatTitle } from '../utils/format'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [

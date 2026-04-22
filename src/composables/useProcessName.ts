@@ -1,5 +1,5 @@
 // composables/useProcessName.ts
-import { formatTitle } from '@/utils/formatTitle'
+import { formatTitle } from '@/utils/format'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 

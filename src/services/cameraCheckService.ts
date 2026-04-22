@@ -1,14 +1,18 @@
 // src/services/cameraCheckService.ts
 import api from '@/lib/api'
+import { ApiResponse } from '@/types/api-response'
 import type { CameraCheck, CameraCheckParams } from '@/types/camera-check'
+import { cleanParams } from '@/utils/format'
 
 
 class CameraCheckService {
-    private baseUrl = '/camera-check'
+    private baseUrl = '/camera_check'
 
-    async getCameraChecks(params: CameraCheckParams): Promise<CameraCheck[]> {
-        const res = await api.get(this.baseUrl, { params })
-        return res.data.data
+    async getCameraChecks(params: CameraCheckParams): Promise<ApiResponse<CameraCheck[]>> {
+        const filterParams = cleanParams(params)
+
+        const res = await api.get(this.baseUrl, { params: filterParams })
+        return res.data
     }
 
     async getCameraCheck(id: number): Promise<CameraCheck> {

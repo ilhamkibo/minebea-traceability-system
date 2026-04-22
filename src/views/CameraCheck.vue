@@ -3,6 +3,7 @@ import { ref, reactive, watch, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useCameraChecks } from '@/hooks/useCameraChecks'
 import { useDebounce } from '@/composables/useDebounce'
+import { TriangleAlert } from 'lucide-vue-next'
 
 const searchRef = ref('')
 const debouncedSearch = useDebounce(searchRef, 500)
@@ -20,7 +21,7 @@ watch(debouncedSearch, (newVal) => {
   params.page = 1
 })
 
-const { data: cameraChecks, isLoading, isError } = useCameraChecks(params)
+const { data: cameraChecks, isLoading, isError, error, refetch } = useCameraChecks(params)
 
 const setJudgement = (j: string) => {
   params.judgement = j
@@ -34,15 +35,17 @@ const handleDateChange = (e: Event) => {
 }
 
 const records = computed(() => {
-  // If the backend returns pagination structure, it might be in `data.data` or similar.
-  // We'll adapt based on what cameraCheckService actually returns.
-  // The service returns res.data.data directly, so cameraChecks.value is T[]
+  if (cameraChecks.value?.data && Array.isArray(cameraChecks.value.data)) {
+    return cameraChecks.value.data
+  }
   if (Array.isArray(cameraChecks.value)) {
     return cameraChecks.value
-  } else if (cameraChecks.value && cameraChecks.value.data) {
-     return cameraChecks.value.data
   }
   return []
+})
+
+const paginationMeta = computed(() => {
+  return cameraChecks.value?.pagination || null
 })
 
 </script>
@@ -72,11 +75,13 @@ const records = computed(() => {
 
         <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg flex overflow-hidden whitespace-nowrap text-[10px] lg:text-xs transition-colors">
            <button @click="setJudgement('')" :class="params.judgement === '' ? 'bg-slate-100 dark:bg-slate-700 font-bold dark:text-white' : 'bg-slate-50 dark:bg-slate-800/50 font-medium'" class="px-3 py-1.5 text-slate-600 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">All</button>
-           <button @click="setJudgement('OK')" :class="params.judgement === 'OK' ? 'bg-slate-100 dark:bg-slate-700 font-bold dark:text-white' : 'bg-slate-50 dark:bg-slate-800/50 font-medium'" class="px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 transition-colors">OK</button>
-           <button @click="setJudgement('NG')" :class="params.judgement === 'NG' ? 'bg-slate-100 dark:bg-slate-700 font-bold dark:text-white' : 'bg-slate-50 dark:bg-slate-800/50 font-medium'" class="px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors">NG</button>
+           <button @click="setJudgement('0')" :class="params.judgement === '0' ? 'bg-slate-100 dark:bg-slate-700 font-bold dark:text-white' : 'bg-slate-50 dark:bg-slate-800/50 font-medium'" class="px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 transition-colors">OK</button>
+           <button @click="setJudgement('1')" :class="params.judgement === '1' ? 'bg-slate-100 dark:bg-slate-700 font-bold dark:text-white' : 'bg-slate-50 dark:bg-slate-800/50 font-medium'" class="px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors">NG</button>
         </div>
       </div>
     </div>
+
+   
 
     <!-- Data Table -->
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden relative transition-colors">
@@ -102,7 +107,7 @@ const records = computed(() => {
             <template v-else-if="records.length > 0">
               <tr v-for="pcb in records" :key="pcb.id" class="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition-colors">
                 <td class="px-4 py-2 font-bold text-slate-700 dark:text-slate-200">{{ pcb.qrCode }}</td>
-                <td class="px-4 py-2 text-slate-500 dark:text-slate-400 font-medium text-[10px] lg:text-xs">{{ pcb.timestamp ? new Date(pcb.timestamp).toLocaleString() : '-' }}</td>
+                <td class="px-4 py-2 text-slate-500 dark:text-slate-400 font-medium text-[10px] lg:text-xs">{{ pcb.createdAt ? new Date(pcb.createdAt).toLocaleString() : '-' }}</td>
                 <td class="px-4 py-2 text-center">
                   <span :class="pcb.judgement === 'OK' ? 'bg-emerald-200 text-emerald-700' : pcb.judgement === 'NG' ? 'bg-rose-100 text-rose-700' : 'bg-slate-200 text-slate-600'" class="inline-flex items-center justify-center rounded-full px-2 py-0.5 text-[9px] lg:text-[10px] font-black uppercase tracking-tighter">
                     {{ pcb.judgement }}
@@ -115,7 +120,29 @@ const records = computed(() => {
                 </td>
               </tr>
             </template>
-            <template v-else-if="!isLoading">
+             <!-- Error Alert -->
+            <template v-else-if="isError">
+              <tr>
+                <td colspan="4" class="px-4 py-16 text-center">
+                  <div class="flex flex-col items-center justify-center">
+                    <div class="bg-red-50 dark:bg-red-900/30 w-16 h-16 rounded-full flex items-center justify-center mb-4 border border-red-100 dark:border-red-800/50">
+                      <TriangleAlert class="h-8 w-8 text-red-500 dark:text-red-400" />
+                    </div>
+                    <h4 class="text-base font-bold text-slate-800 dark:text-slate-200">Failed to load data</h4>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto leading-relaxed">
+                      {{ error?.response?.data?.message || error?.message || 'An unexpected error occurred while fetching camera checks.' }}
+                    </p>
+                    <button @click="refetch()" class="mt-5 px-5 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 shadow-sm border border-slate-200 dark:border-slate-700 text-xs font-semibold rounded-lg transition-colors flex items-center gap-2">
+                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      Try Again
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </template>
+            <template v-else-if="!isLoading && !isError">
               <tr>
                 <td colspan="4" class="px-4 py-10 text-center text-slate-400 font-medium">No records found.</td>
               </tr>
@@ -124,20 +151,30 @@ const records = computed(() => {
         </table>
       </div>
       
-      <!-- Placeholder simple pagination if structure fits -->
+      <!-- Pagination -->
       <div v-if="!isLoading && records.length > 0" class="p-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
-        <span class="text-xs text-slate-500 dark:text-slate-400">Page {{ params.page }}</span>
+        <span class="text-xs text-slate-500 dark:text-slate-400">
+          <template v-if="paginationMeta">
+            Showing <span class="font-medium text-slate-700 dark:text-slate-200">{{ Math.min((paginationMeta.page - 1) * paginationMeta.limit + 1, paginationMeta.total) }}</span> 
+            to <span class="font-medium text-slate-700 dark:text-slate-200">{{ Math.min(paginationMeta.page * paginationMeta.limit, paginationMeta.total) }}</span> 
+            of <span class="font-medium text-slate-700 dark:text-slate-200">{{ paginationMeta.total }}</span> results
+          </template>
+          <template v-else>
+            Page {{ params.page }}
+          </template>
+        </span>
         <div class="flex space-x-1">
           <button 
             @click="params.page = (params.page || 1) - 1" 
-            :disabled="(params.page || 1) <= 1"
+            :disabled="paginationMeta ? !paginationMeta.hasPreviousPage : (params.page || 1) <= 1"
             class="px-3 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-medium text-slate-600 dark:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
           >
             Prev
           </button>
           <button 
             @click="params.page = (params.page || 1) + 1" 
-            class="px-3 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+            :disabled="paginationMeta ? !paginationMeta.hasNextPage : records.length < params.limit"
+            class="px-3 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs font-medium text-slate-600 dark:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
           >
             Next
           </button>
