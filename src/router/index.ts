@@ -35,6 +35,14 @@ const routes = [
     }
   },
   {
+    path: '/process/visual-check',
+    name: 'Visual Check',
+    component: () => import('../views/VisualCheck.vue'),
+    meta: {
+      title: 'Visual Check'
+    }
+  },
+  {
     path: '/process/:id',
     name: 'Process Detail',
     component: () => import('../views/ProcessDetail.vue'),

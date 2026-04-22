@@ -73,7 +73,7 @@ const handleMenuClick = () => {
 </script>
 
 <template>
-  <div class="flex h-screen bg-background dark:bg-brand-dark font-sans overflow-hidden">
+  <div class="flex h-screen bg-background dark:bg-slate-950 font-sans overflow-hidden">
     <!-- Mobile Overlay -->
     <div 
       v-if="isSidebarOpen" 
@@ -83,11 +83,11 @@ const handleMenuClick = () => {
 
     <!-- Sidebar (Always fixed) -->
     <aside 
-      class="fixed inset-y-0 left-0 w-64 bg-white dark:bg-brand-dark text-slate-800 dark:text-white flex flex-col border-r border-slate-100 dark:border-transparent shadow-xl z-50 transition-all duration-300 ease-in-out"
+      class="fixed inset-y-0 left-0 w-64 bg-white dark:bg-brand-dark text-slate-800 dark:text-white flex flex-col border-r border-slate-100 dark:border-slate-800 shadow-xl z-50 transition-all duration-300 ease-in-out"
       :class="isSidebarOpen ? 'translate-x-0' : '-translate-x-full'"
     >
       <!-- Sidebar Header -->
-      <div class="p-6 flex items-center justify-between overflow-hidden whitespace-nowrap border-b border-slate-100 dark:border-slate-800/50">
+      <div class="p-6 flex items-center justify-between overflow-hidden whitespace-nowrap border-b border-slate-100 dark:border-slate-800">
         <div>
           <h1 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">SHINSEI <span class="text-brand-accent">DENSI</span></h1>
           <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-widest">Traceability System</p>
@@ -104,8 +104,8 @@ const handleMenuClick = () => {
             <RouterLink 
               :to="item.path"
               @click="handleMenuClick"
-              class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 group"
-              :class="route.path === item.path ? 'bg-brand-accent text-white shadow-lg' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-brand-accent dark:hover:text-white'"
+              class="flex items-center px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 group"
+              :class="route.path === item.path ? 'bg-brand-accent text-white shadow-md' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-brand-accent dark:hover:text-white'"
             >
               <component :is="item.icon" class="mr-3 w-5 h-5 shrink-0" />
               {{ item.name }}
@@ -114,7 +114,7 @@ const handleMenuClick = () => {
           <div v-else class="space-y-1">
             <button 
               @click="toggleExpandedMenu(item.name)"
-              class="flex w-full items-center justify-between px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 group text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-brand-accent dark:hover:text-white text-left"
+              class="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 group text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-brand-accent dark:hover:text-white text-left"
             >
               <div class="flex items-center">
                 <component :is="item.icon" class="mr-3 w-5 h-5 shrink-0" />
@@ -127,7 +127,7 @@ const handleMenuClick = () => {
                 v-for="subItem in item.items" :key="subItem.path"
                 :to="subItem.path"
                 @click="handleMenuClick"
-                class="flex items-center px-4 py-2.5 text-xs font-medium rounded-xl transition-all duration-200 group"
+                class="flex items-center px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 group"
                 :class="route.path === subItem.path ? 'bg-brand-accent text-white shadow-md' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-brand-accent dark:hover:text-white'"
               >
                 <component :is="subItem.icon" class="mr-3 w-4 h-4 shrink-0" />
@@ -140,13 +140,7 @@ const handleMenuClick = () => {
 
       <!-- User Profile -->
       <div class="p-6 border-t border-slate-100 dark:border-slate-800">
-        <div class="flex items-center space-x-3">
-          <div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-white text-xs shrink-0 font-bold">A</div>
-          <div class="truncate">
-            <p class="text-sm font-medium truncate text-slate-800 dark:text-white">Administrator</p>
-            <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-tighter">Minebea Plant</p>
-          </div>
-        </div>
+        <p class="text-md text-center text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-tighter">Minebea Line</p>
       </div>
     </aside>
 

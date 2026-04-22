@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import { ref, reactive, watch, computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import { useCameraChecks } from '@/hooks/useCameraChecks'
+import { useVisualChecks } from '@/hooks/useVisualCheck'
 import { useDebounce } from '@/composables/useDebounce'
 import { TriangleAlert } from 'lucide-vue-next'
 import Pagination from '@/components/Pagination.vue'
 
 const searchRef = ref('')
 const debouncedSearch = useDebounce(searchRef, 500)
+const limitRef = ref(10)
 
 const params = reactive({
   page: 1,
-  limit: 10,
+  limit: limitRef.value,
   judgement: '',
   datetime: '',
   search: debouncedSearch.value
@@ -22,7 +23,12 @@ watch(debouncedSearch, (newVal) => {
   params.page = 1
 })
 
-const { data: cameraChecks, isLoading, isError, error, refetch } = useCameraChecks(params)
+watch(limitRef, (newVal) => {
+  params.limit = newVal
+  params.page = 1
+})
+
+const { data: visualChecks, isLoading, isError, error, refetch } = useVisualChecks(params)
 
 const setJudgement = (j: string) => {
   params.judgement = j
@@ -36,17 +42,17 @@ const handleDateChange = (e: Event) => {
 }
 
 const records = computed(() => {
-  if (cameraChecks.value?.data && Array.isArray(cameraChecks.value.data)) {
-    return cameraChecks.value.data
+  if (visualChecks.value?.data && Array.isArray(visualChecks.value.data)) {
+    return visualChecks.value.data
   }
-  if (Array.isArray(cameraChecks.value)) {
-    return cameraChecks.value
+  if (Array.isArray(visualChecks.value)) {
+    return visualChecks.value
   }
   return []
 })
 
 const paginationMeta = computed(() => {
-  return cameraChecks.value?.pagination || null
+  return visualChecks.value?.pagination || null
 })
 
 </script>
@@ -55,8 +61,8 @@ const paginationMeta = computed(() => {
   <div class="space-y-4">
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
       <div>
-        <h3 class="text-lg lg:text-xl font-bold text-slate-800 dark:text-slate-100">Camera Check Monitoring</h3>
-        <p class="text-[10px] lg:text-xs text-slate-500 dark:text-slate-400">List of PCBs processed through Camera Check station.</p>
+        <h3 class="text-lg lg:text-xl font-bold text-slate-800 dark:text-slate-100">Visual Check Monitoring</h3>
+        <p class="text-[10px] lg:text-xs text-slate-500 dark:text-slate-400">List of PCBs processed through Visual Check station.</p>
       </div>
       
       <div class="flex flex-wrap items-center gap-2">
@@ -157,7 +163,7 @@ const paginationMeta = computed(() => {
         v-if="!isLoading && records.length > 0"
         :meta="paginationMeta"
         v-model:page="params.page"
-        v-model:limit="params.limit"
+        v-model:limit="limitRef"
         :total-records="records.length"
       />
     </div>

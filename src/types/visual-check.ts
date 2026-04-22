@@ -9,4 +9,5 @@ export interface VisualCheck {
 
 export interface VisualCheckParams extends PaginationParams {
     judgement?: string;
+    datetime?: string;
 }

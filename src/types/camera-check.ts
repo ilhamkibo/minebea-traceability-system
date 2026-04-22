@@ -2,7 +2,7 @@ import { PaginationParams } from "./pagination";
 
 export interface CameraCheckParams extends PaginationParams {
     judgement?: string;
-    date?: string;
+    datetime?: string;
 }
 
 export interface CameraCheck {

@@ -10,6 +10,7 @@ class CameraCheckService {
 
     async getCameraChecks(params: CameraCheckParams): Promise<ApiResponse<CameraCheck[]>> {
         const filterParams = cleanParams(params)
+        console.log("🚀 ~ CameraCheckService ~ getCameraChecks ~ filterParams:", filterParams)
 
         const res = await api.get(this.baseUrl, { params: filterParams })
         return res.data
