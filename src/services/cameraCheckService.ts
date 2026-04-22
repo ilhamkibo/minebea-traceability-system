@@ -10,6 +10,11 @@ class CameraCheckService {
         const res = await api.get(this.baseUrl, { params })
         return res.data.data
     }
+
+    async getCameraCheck(id: number): Promise<CameraCheck> {
+        const res = await api.get(`${this.baseUrl}/${id}`)
+        return res.data.data
+    }
 }
 
 export const cameraCheckService = new CameraCheckService()

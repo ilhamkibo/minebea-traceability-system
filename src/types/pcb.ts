@@ -1,30 +1,8 @@
-export type PcbData = {
 
-}
-
-export interface FinalInspection {
+export interface PcbData {
     id: number;
-    qrCode: string;
+    value: string;
+    itemStatus: string;
+    lastAppearance: string;
     createdAt: string;
-}
-
-export interface VisualCheck {
-    id: number;
-    qrCode: string;
-    judgement: string;
-    timestamp: string;
-}
-
-export interface TouchUp {
-    id: number;
-    qrCode: string;
-    judgement: string;
-    timestamp: string;
-}
-
-export interface RomWriting {
-    id: number;
-    qrCode: string;
-    judgement: string;
-    timestamp: string;
 }
