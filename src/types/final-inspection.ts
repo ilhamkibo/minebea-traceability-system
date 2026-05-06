@@ -1,10 +1,10 @@
 import { PaginationParams } from "./pagination";
 
-export interface TouchUpParams extends PaginationParams {
+export interface FinalInspectionParams extends PaginationParams {
     datetime?: string;
 }
 
-export interface TouchUp {
+export interface FinalInspection {
     id: number;
     qrCode: string;
     createdAt: string;

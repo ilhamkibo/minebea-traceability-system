@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, type Component } from 'vue'
 import { RouterView, RouterLink, useRoute } from 'vue-router'
-import { LayoutDashboard, Search, Table, Camera, Eye, Wrench, Cpu, X, Menu, PanelLeftClose, ChevronDown, Waypoints, Sun, Moon } from 'lucide-vue-next'
+import { LayoutDashboard, Search, Table, Camera, Eye, Wrench, Cpu, ClipboardCheck, X, Menu, PanelLeftClose, ChevronDown, Waypoints, Sun, Moon, Users } from 'lucide-vue-next'
 import { useTheme } from '@/composables/useTheme'
 
 const route = useRoute()
@@ -35,6 +35,8 @@ const menuItems: MenuItem[] = [
   { name: 'Visual Check', path: '/process/visual-check', icon: Eye },
   { name: 'Touch Up', path: '/process/touch-up', icon: Wrench },
   { name: 'ROM Writing', path: '/process/rom-writing', icon: Cpu },
+  { name: 'Final Inspection', path: '/process/final-inspection', icon: ClipboardCheck },
+  { name: 'Operators', path: '/operators', icon: Users },
 ]
 
 const expandedMenus = ref<string[]>([])
@@ -90,7 +92,7 @@ const handleMenuClick = () => {
       <div class="p-6 flex items-center justify-between overflow-hidden whitespace-nowrap border-b border-slate-100 dark:border-slate-800">
         <div>
           <h1 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">SHINSEI <span class="text-brand-accent">DENSI</span></h1>
-          <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-widest">Traceability System</p>
+          <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-widest">Minebea Line Traceability System</p>
         </div>
         <button @click="isSidebarOpen = false" class="lg:hidden p-1 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors">
           <X class="w-6 h-6" />

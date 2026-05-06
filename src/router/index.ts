@@ -43,11 +43,51 @@ const routes = [
     }
   },
   {
+    path: '/process/touch-up',
+    name: 'Touch Up',
+    component: () => import('../views/TouchUp.vue'),
+    meta: {
+      title: 'Touch Up'
+    }
+  },
+  {
+    path: '/process/rom-writing',
+    name: 'ROM Writing',
+    component: () => import('../views/RomWriting.vue'),
+    meta: {
+      title: 'ROM Writing'
+    }
+  },
+  {
+    path: '/process/final-inspection',
+    name: 'Final Inspection',
+    component: () => import('../views/FinalInspection.vue'),
+    meta: {
+      title: 'Final Inspection'
+    }
+  },
+  {
     path: '/process/:id',
     name: 'Process Detail',
     component: () => import('../views/ProcessDetail.vue'),
     meta: {
       title: 'Process Detail'
+    }
+  },
+  {
+    path: '/operators',
+    name: 'Operators',
+    component: () => import('../views/OperatorPage.vue'),
+    meta: {
+      title: 'Operators'
+    }
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('../views/NotFound.vue'),
+    meta: {
+      title: 'Page Not Found'
     }
   }
 ]

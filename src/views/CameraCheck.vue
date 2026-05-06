@@ -107,15 +107,15 @@ const paginationMeta = computed(() => {
             </template>
             <template v-else-if="records.length > 0">
               <tr v-for="pcb in records" :key="pcb.id" class="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition-colors">
-                <td class="px-4 py-2 font-bold text-slate-700 dark:text-slate-200">{{ pcb.qrCode }}</td>
-                <td class="px-4 py-2 text-slate-500 dark:text-slate-400 font-medium text-[10px] lg:text-xs">{{ pcb.createdAt ? new Date(pcb.createdAt).toLocaleString() : '-' }}</td>
-                <td class="px-4 py-2 text-center">
+                <td class="px-4 py-2.5 font-bold text-slate-700 dark:text-slate-200">{{ pcb.qrCode }}</td>
+                <td class="px-4 py-2.5 text-slate-500 dark:text-slate-400 font-medium text-[10px] lg:text-xs">{{ pcb.createdAt ? new Date(pcb.createdAt).toLocaleString() : '-' }}</td>
+                <td class="px-4 py-2.5 text-center">
                   <span :class="pcb.judgement === 'OK' ? 'bg-emerald-200 text-emerald-700' : pcb.judgement === 'NG' ? 'bg-rose-100 text-rose-700' : 'bg-slate-200 text-slate-600'" class="inline-flex items-center justify-center rounded-full px-2 py-0.5 text-[9px] lg:text-[10px] font-black uppercase tracking-tighter">
                     {{ pcb.judgement }}
                   </span>
                 </td>
-                <td class="px-4 py-2 text-right">
-                  <RouterLink :to="{ name: 'Traceability', query: { qr: pcb.qrCode }}" class="text-brand-accent hover:text-blue-700 font-bold text-[9px] lg:text-[10px] uppercase tracking-wider">
+                <td class="px-4 py-2.5 text-right">
+                  <RouterLink :to="{ name: 'Traceability', query: { qr: pcb.qrCode }}" class="bg-brand-dark/5 dark:bg-white/10 hover:bg-brand-dark dark:hover:bg-white/20 text-brand-dark dark:text-white hover:text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all">
                       Details
                   </RouterLink>
                 </td>

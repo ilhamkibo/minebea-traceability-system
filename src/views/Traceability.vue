@@ -1,62 +1,62 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { usePcbData, type PcbRecord } from '../composables/usePcbData'
-import { Search, ChevronLeft, ChevronRight, ScanLine, X, QrCode, Route as RouteIcon } from 'lucide-vue-next'
+import { usePcbsList, usePcbDetail } from '@/hooks/usePcbQueries'
+import { useDebounce } from '@/composables/useDebounce'
+import Pagination from '@/components/Pagination.vue'
+import { Search, ScanLine, X, QrCode, Route as RouteIcon } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
-const { pcbRecords, findByQr } = usePcbData()
 
 // Table and Pagination state
-const searchQuery = ref('')
-const currentPage = ref(1)
-const itemsPerPage = 12
+const searchRef = ref('')
+const debouncedSearch = useDebounce(searchRef, 500)
+const limitRef = ref(10)
+
+const params = reactive({
+  page: 1,
+  limit: limitRef.value,
+  datetime: '',
+  search: debouncedSearch.value
+})
+
+watch(debouncedSearch, (newVal) => {
+  params.search = newVal
+  params.page = 1
+})
+
+watch(limitRef, (newVal) => {
+  params.limit = newVal
+  params.page = 1
+})
+
+const { data: pcbResponse, isLoading: isLoadingPcbs } = usePcbsList(params)
+
+const records = computed(() => {
+  if (pcbResponse.value?.data && Array.isArray(pcbResponse.value.data)) {
+    return pcbResponse.value.data
+  }
+  if (Array.isArray(pcbResponse.value)) {
+    return pcbResponse.value
+  }
+  return []
+})
+
+const paginationMeta = computed(() => {
+  return pcbResponse.value?.pagination || null
+})
 
 // Modal state
 const isModalOpen = ref(false)
-const selectedPcb = ref<PcbRecord | undefined>(undefined)
+const selectedPcbId = ref<number | undefined>(undefined)
 
-// Computed properties for Table
-const filteredRecords = computed(() => {
-  if (!searchQuery.value) return pcbRecords.value
-  
-  const query = searchQuery.value.toLowerCase()
-  return pcbRecords.value.filter(pcb => 
-    pcb.id.toLowerCase().includes(query) ||
-    pcb.currentStatus.toLowerCase().includes(query) ||
-    pcb.currentStep.toLowerCase().includes(query)
-  )
-})
+const { data: selectedPcbDetail, isLoading: isLoadingDetail } = usePcbDetail(selectedPcbId)
 
-const totalPages = computed(() => Math.ceil(filteredRecords.value.length / itemsPerPage))
-
-const paginatedRecords = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage
-  const end = start + itemsPerPage
-  return filteredRecords.value.slice(start, end)
-})
-
-const handleSearch = () => {
-  currentPage.value = 1
-}
-
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) currentPage.value++
-}
-
-const prevPage = () => {
-  if (currentPage.value > 1) currentPage.value--
-}
-
-const goToPage = (page: number) => {
-  currentPage.value = page
-}
-
-const openDetails = (pcb: PcbRecord) => {
-  selectedPcb.value = pcb
+const openDetails = (id: number) => {
+  selectedPcbId.value = id
   isModalOpen.value = true
-  router.replace({ query: { qr: pcb.id }})
+  router.replace({ query: { id: id.toString() }})
 }
 
 const closeModal = () => {
@@ -65,57 +65,61 @@ const closeModal = () => {
 }
 
 onMounted(() => {
-  if (route.query.qr) {
-    const pcb = findByQr(route.query.qr as string)
-    if (pcb) {
-      openDetails(pcb)
-      searchQuery.value = pcb.id
+  if (route.query.id) {
+    const id = parseInt(route.query.id as string)
+    if (!isNaN(id)) {
+      openDetails(id)
     }
   }
 })
 
-watch(() => route.query.qr, (newQr) => {
-  if (newQr && (!selectedPcb.value || selectedPcb.value.id !== newQr)) {
-    const pcb = findByQr(newQr as string)
-    if (pcb) {
-      openDetails(pcb)
+watch(() => route.query.id, (newId) => {
+  if (newId) {
+    const id = parseInt(newId as string)
+    if (!isNaN(id) && selectedPcbId.value !== id) {
+      openDetails(id)
     }
-  } else if (!newQr) {
+  } else {
     isModalOpen.value = false
   }
 })
 
-// Optional pagination display logic for buttons
-const pagesToShow = computed(() => {
-  const pages = []
-  for (let i = 1; i <= totalPages.value; i++) {
-    if (Math.abs(i - currentPage.value) <= 1 || i === 1 || i === totalPages.value) {
-      pages.push(i)
-    } else if (pages[pages.length - 1] !== '...') {
-      pages.push('...')
-    }
-  }
-  return pages
-})
+const handleDateChange = (e: Event) => {
+  const target = e.target as HTMLInputElement
+  params.datetime = target.value
+  params.page = 1
+}
+
+
 </script>
 
 <template>
-  <div class="max-w-6xl mx-auto space-y-4 pb-8">
+  <div class="mx-auto space-y-4 pb-8">
     <div class="text-center space-y-1 mb-4">
       <h3 class="text-lg lg:text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight">Traceability Engine</h3>
       <p class="text-[10px] lg:text-xs text-slate-500 dark:text-slate-400 px-4">Track every touchpoint of your PCB production line</p>
     </div>
 
-    <!-- Search / Filter -->
-    <div class="relative group max-w-md mx-auto px-2 lg:px-0">
-      <input 
-        v-model="searchQuery"
-        @input="handleSearch"
-        type="text" 
-        placeholder="Filter by PCB ID, Status, or Step..."
-        class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 pl-9 outline-none focus:border-brand-accent transition-all shadow-sm text-xs lg:text-sm text-slate-800 dark:text-slate-200"
-      />
-      <Search class="absolute left-4 lg:left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+    <div class="flex gap-4 items-center justify-center">
+      <!-- Search / Filter -->
+      <div class="relative w-full group max-w-md px-2 lg:px-0">
+        <input 
+          v-model="searchRef"
+          type="text" 
+          placeholder="Filter by PCB ID, Status, or Step..."
+          class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 pl-9 outline-none focus:border-brand-accent transition-all shadow-sm text-xs lg:text-sm text-slate-800 dark:text-slate-200"
+        />
+        <Search class="absolute left-4 lg:left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+      </div>
+      <!-- Filter date -->
+      <div>
+        <input 
+          :value="params.datetime"
+          @change="handleDateChange"
+          type="date" 
+           class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 pl-9 outline-none focus:border-brand-accent transition-all shadow-sm text-xs lg:text-sm text-slate-800 dark:text-slate-200"
+        />
+      </div>
     </div>
 
     <!-- PCB Data Table -->
@@ -132,22 +136,22 @@ const pagesToShow = computed(() => {
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-50 dark:divide-slate-700/50 text-[11px] lg:text-xs">
-            <template v-if="paginatedRecords.length > 0">
-              <tr v-for="pcb in paginatedRecords" :key="pcb.id" class="hover:bg-slate-50/70 dark:hover:bg-slate-700/50 transition-colors group">
-                <td class="px-4 py-2.5 font-bold text-slate-800 dark:text-slate-200">{{ pcb.id }}</td>
-                <td class="px-4 py-2.5 text-slate-600 dark:text-slate-300">{{ pcb.currentStep }}</td>
+            <template v-if="records.length > 0">
+              <tr v-for="pcb in records" :key="pcb.id" class="hover:bg-slate-50/70 dark:hover:bg-slate-700/50 transition-colors group">
+                <td class="px-4 py-2.5 font-bold text-slate-800 dark:text-slate-200">{{ pcb.value }}</td>
+                <td class="px-4 py-2.5 text-slate-600 dark:text-slate-300">{{ pcb.lastAppearance }}</td>
                 <td class="px-4 py-2.5 text-slate-400 text-[10px] hidden sm:table-cell">
-                  {{ new Date(pcb.lastUpdate).toLocaleString('en-GB') }}
+                  {{ new Date(pcb.createdAt).toLocaleString('en-GB') }}
                 </td>
                 <td class="px-4 py-2.5">
-                  <span :class="pcb.currentStatus === 'OK' ? 'bg-emerald-200 text-emerald-700' : pcb.currentStatus === 'NG' ? 'bg-rose-100 text-rose-700' : 'bg-slate-200 text-slate-600'" class="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[9px] lg:text-[10px] font-black uppercase tracking-tighter">
-                    {{ pcb.currentStatus }}
+                  <span :class="pcb.itemStatus === 'OK' ? 'bg-emerald-200 text-emerald-700' : pcb.itemStatus === 'NG' ? 'bg-rose-100 text-rose-700' : 'bg-slate-200 text-slate-600'" class="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[9px] lg:text-[10px] font-black uppercase tracking-tighter">
+                    {{ pcb.itemStatus }}
                   </span>
                 </td>
                 <td class="px-4 py-2.5 text-center">
                   <button 
-                    @click="openDetails(pcb)"
-                    class="bg-brand-dark/5 dark:bg-white/10 hover:bg-brand-dark dark:hover:bg-white/20 text-brand-dark dark:text-white hover:text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100"
+                    @click="openDetails(pcb.id)"
+                    class="bg-brand-dark/5 dark:bg-white/10 hover:bg-brand-dark dark:hover:bg-white/20 text-brand-dark dark:text-white hover:text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all"
                   >
                     Details
                   </button>
@@ -163,47 +167,18 @@ const pagesToShow = computed(() => {
         </table>
       </div>
       
-      <!-- Pagination Controls -->
-      <div v-if="totalPages > 1" class="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-2.5 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
-        <span class="text-[10px] text-slate-500 dark:text-slate-400">
-          Page <span class="font-bold text-slate-800 dark:text-slate-200">{{ currentPage }}</span> of <span class="font-bold text-slate-800 dark:text-slate-200">{{ totalPages }}</span>
-        </span>
-        <div class="flex items-center space-x-1">
-          <button 
-            @click="prevPage" 
-            :disabled="currentPage === 1"
-            class="p-1 rounded-md bg-white border border-slate-200 text-slate-500 hover:bg-slate-100 disabled:opacity-50 transition-colors"
-          >
-            <ChevronLeft class="w-3.5 h-3.5" />
-          </button>
-          
-          <template v-for="page in pagesToShow" :key="page">
-            <span v-if="page === '...'" class="px-1 text-slate-400 text-xs">...</span>
-            <button 
-              v-else
-              @click="goToPage(page as number)"
-              :class="[
-                'min-w-[24px] h-6 px-1 rounded-md text-[10px] font-bold transition-colors',
-                currentPage === page ? 'bg-brand-dark dark:bg-slate-700 text-white' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
-              ]"
-            >
-               {{ page }}
-            </button>
-          </template>
-          
-          <button 
-            @click="nextPage" 
-            :disabled="currentPage === totalPages"
-            class="p-1 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50 transition-colors"
-          >
-            <ChevronRight class="w-3.5 h-3.5" />
-          </button>
-        </div>
-      </div>
+      <!-- Pagination -->
+      <Pagination 
+        v-if="!isLoadingPcbs && records.length > 0"
+        :meta="paginationMeta"
+        v-model:page="params.page"
+        v-model:limit="limitRef"
+        :total-records="records.length"
+      />
     </div>
 
     <!-- Modal for PCB Details -->
-    <div v-if="isModalOpen && selectedPcb" class="fixed inset-0 z-100 flex items-center justify-center p-3 sm:p-4" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div v-if="isModalOpen && selectedPcbDetail" class="fixed inset-0 z-100 flex items-center justify-center p-3 sm:p-4" aria-labelledby="modal-title" role="dialog" aria-modal="true">
       <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="closeModal"></div>
       
       <div class="relative bg-slate-50 dark:bg-slate-900 w-full max-w-2xl max-h-[85vh] rounded-2xl shadow-xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 border border-slate-200 dark:border-slate-800">
@@ -225,12 +200,12 @@ const pagesToShow = computed(() => {
             </div>
             <div class="relative z-10">
               <p class="text-[9px] text-slate-400 mb-0.5 uppercase tracking-widest font-black">Serial Number</p>
-              <h4 class="text-lg lg:text-xl font-black tracking-tighter">{{ selectedPcb.id }}</h4>
+              <h4 class="text-lg lg:text-xl font-black tracking-tighter">{{ selectedPcbDetail.value }}</h4>
             </div>
             <div class="relative z-10 text-right">
               <p class="text-[9px] text-slate-400 mb-1 uppercase tracking-widest font-black">Final Outcome</p>
-              <span :class="selectedPcb.currentStatus === 'OK' ? 'bg-emerald-500' : selectedPcb.currentStatus === 'NG' ? 'bg-rose-500' : 'bg-slate-500'" class="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-sm">
-                {{ selectedPcb.currentStatus }}
+              <span :class="selectedPcbDetail.itemStatus === 'OK' ? 'bg-emerald-500' : selectedPcbDetail.itemStatus === 'NG' ? 'bg-rose-500' : 'bg-slate-500'" class="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-sm">
+                {{ selectedPcbDetail.itemStatus }}
               </span>
             </div>
           </div>
@@ -243,28 +218,28 @@ const pagesToShow = computed(() => {
             </h5>
             
             <div class="relative pl-5 space-y-4 before:content-[''] before:absolute before:left-[9px] before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-100 dark:before:bg-slate-700">
-              <div v-for="(log, idx) in selectedPcb.history" :key="idx" class="relative group">
+              <div v-for="(log, idx) in selectedPcbDetail.timeLine" :key="idx" class="relative group">
                 <!-- Timeline Dot -->
                 <div class="absolute -left-[17.5px] top-1.5 w-2.5 h-2.5 rounded-full border-2 border-white shadow-sm z-10"
-                     :class="log.status === 'OK' ? 'bg-emerald-500' : 'bg-rose-500'">
+                     :class="log.passed ? 'bg-emerald-500' : 'bg-rose-500'">
                 </div>
                 
                 <div class="flex items-center justify-between gap-2 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-700">
                   <div class="min-w-0">
-                    <h6 class="font-bold text-slate-700 dark:text-slate-200 text-xs leading-tight">{{ log.step }}</h6>
+                    <h6 class="font-bold text-slate-700 dark:text-slate-200 text-xs leading-tight">{{ log.workFlowEventName }}</h6>
                     <div class="flex items-center mt-0.5 text-slate-400 dark:text-slate-500 space-x-1.5">
                        <span class="text-[9px] font-bold uppercase tracking-wider">
-                         {{ new Date(log.time).toLocaleDateString([], { month: 'short', day: 'numeric' }) }}
+                         {{ new Date(log.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' }) }}
                        </span>
                        <span class="w-[3px] h-[3px] bg-slate-200 rounded-full"></span>
                        <span class="text-[9px] font-bold uppercase tracking-wider">
-                         {{ new Date(log.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}
+                         {{ new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}
                        </span>
                     </div>
                   </div>
                   <div class="flex items-center shrink-0">
-                    <span :class="log.status === 'OK' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'" class="inline-flex items-center justify-center rounded-md text-[8px] px-1.5 py-0.5 font-black uppercase tracking-tighter">
-                      {{ log.status }}
+                    <span :class="log.passed ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'" class="inline-flex items-center justify-center rounded-md text-[8px] px-1.5 py-0.5 font-black uppercase tracking-tighter">
+                      {{ log.passed ? 'OK' : 'NG' }}
                     </span>
                   </div>
                 </div>
