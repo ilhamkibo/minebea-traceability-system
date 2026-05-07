@@ -5,7 +5,7 @@ const routes = [
   {
     path: '/',
     name: 'Dashboard',
-    component: () => import('../views/Dashboard.vue'),
+    component: () => import('../views/DashboardPage.vue'),
     meta: {
       title: 'Dashboard'
     }
@@ -13,7 +13,7 @@ const routes = [
   {
     path: '/traceability',
     name: 'Traceability',
-    component: () => import('../views/Traceability.vue'),
+    component: () => import('../views/TraceabilityPage.vue'),
     meta: {
       title: 'Traceability Timeline'
     }
@@ -21,7 +21,7 @@ const routes = [
   {
     path: '/traceability-table',
     name: 'Traceability Table',
-    component: () => import('../views/TraceabilityTable.vue'),
+    component: () => import('../views/TraceabilityTablePage.vue'),
     meta: {
       title: 'Traceability Table'
     }
@@ -29,7 +29,7 @@ const routes = [
   {
     path: '/process/camera-check',
     name: 'Camera Check',
-    component: () => import('../views/CameraCheck.vue'),
+    component: () => import('../views/CameraCheckPage.vue'),
     meta: {
       title: 'Camera Check'
     }
@@ -37,7 +37,7 @@ const routes = [
   {
     path: '/process/visual-check',
     name: 'Visual Check',
-    component: () => import('../views/VisualCheck.vue'),
+    component: () => import('../views/VisualCheckPage.vue'),
     meta: {
       title: 'Visual Check'
     }
@@ -45,7 +45,7 @@ const routes = [
   {
     path: '/process/touch-up',
     name: 'Touch Up',
-    component: () => import('../views/TouchUp.vue'),
+    component: () => import('../views/TouchUpPage.vue'),
     meta: {
       title: 'Touch Up'
     }
@@ -53,7 +53,7 @@ const routes = [
   {
     path: '/process/rom-writing',
     name: 'ROM Writing',
-    component: () => import('../views/RomWriting.vue'),
+    component: () => import('../views/RomWritingPage.vue'),
     meta: {
       title: 'ROM Writing'
     }
@@ -61,7 +61,7 @@ const routes = [
   {
     path: '/process/final-inspection',
     name: 'Final Inspection',
-    component: () => import('../views/FinalInspection.vue'),
+    component: () => import('../views/FinalInspectionPage.vue'),
     meta: {
       title: 'Final Inspection'
     }
@@ -69,7 +69,7 @@ const routes = [
   {
     path: '/process/:id',
     name: 'Process Detail',
-    component: () => import('../views/ProcessDetail.vue'),
+    component: () => import('../views/ProcessDetailPage.vue'),
     meta: {
       title: 'Process Detail'
     }
@@ -85,7 +85,7 @@ const routes = [
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
-    component: () => import('../views/NotFound.vue'),
+    component: () => import('../views/NotFoundPage.vue'),
     meta: {
       title: 'Page Not Found'
     }
