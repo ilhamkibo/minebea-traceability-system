@@ -1,6 +1,6 @@
 import api from "@/lib/api";
 import { ApiResponse } from "@/types/api-response";
-import type { Operator, OperatorParams } from "@/types/operator";
+import type { Operator, OperatorParams, CurrentOperator, OperatorAssignmentPayload } from "@/types/operator";
 import { cleanParams } from "@/utils/format";
 
 class OperatorService {
@@ -9,6 +9,11 @@ class OperatorService {
     async getOperators(params: OperatorParams): Promise<ApiResponse<Operator[]>> {
         const filterParams = cleanParams(params)
         const res = await api.get(this.baseUrl, { params: filterParams })
+        return res.data
+    }
+
+    async getCurrentOperators(): Promise<ApiResponse<{ operators: CurrentOperator[] }>> {
+        const res = await api.get(`${this.baseUrl}/current`)
         return res.data
     }
 
@@ -33,6 +38,13 @@ class OperatorService {
 
     async deleteOperator(id: number, pin: string): Promise<ApiResponse<void>> {
         const res = await api.delete(`${this.baseUrl}/${id}`, {
+            headers: { 'Authorization': pin }
+        })
+        return res.data
+    }
+
+    async updateAssignments(data: OperatorAssignmentPayload[], pin: string): Promise<ApiResponse<void>> {
+        const res = await api.patch(`${this.baseUrl}/assignment`, { assignments: data }, {
             headers: { 'Authorization': pin }
         })
         return res.data

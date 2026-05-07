@@ -7,13 +7,29 @@ export interface OperatorParams extends PaginationParams {
 export interface Operator {
     id: number;
     name: string;
-    username: string;
-    email: string;
-    role: string;
-    createdAt: string;
+    assigned: boolean;
+    workPosition?: string[];
+}
+
+export interface CurrentOperator {
+    id: number;
+    name: string;
+    assigned: boolean;
+    workPosition: string[];
+}
+
+export interface OperatorAssignmentPayload {
+    id: string;
+    workPosition: number[];
 }
 
 export interface OperatorFormData {
     name: string;
     pin: string;
+}
+
+export interface AssignmentRow {
+    label: string
+    assignPosition: number
+    operatorId: string
 }

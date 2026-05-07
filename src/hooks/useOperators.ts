@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+import type { Ref } from 'vue'
 import type { AxiosError } from 'axios'
-import type { Operator, OperatorParams } from '@/types/operator'
+import type { Operator, OperatorParams, CurrentOperator, OperatorAssignmentPayload } from '@/types/operator'
 import type { ApiError, ApiResponse } from '@/types/api-response'
 import { operatorService } from '@/services/operatorService'
 
@@ -39,6 +40,26 @@ export function useDeleteOperator() {
         mutationFn: ({ id, pin }) => operatorService.deleteOperator(id, pin),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['operators'] })
+        }
+    })
+}
+
+export function useCurrentOperators() {
+    return useQuery<ApiResponse<{ operators: CurrentOperator[] }>, AxiosError<ApiError>>({
+        queryKey: ['operators', 'current'],
+        queryFn: () => operatorService.getCurrentOperators(),
+        staleTime: 1000 * 10,
+        refetchOnWindowFocus: true,
+    })
+}
+
+export function useUpdateAssignments() {
+    const queryClient = useQueryClient()
+    return useMutation<ApiResponse<void>, AxiosError<ApiError>, { data: OperatorAssignmentPayload[]; pin: string }>({
+        mutationFn: ({ data, pin }) => operatorService.updateAssignments(data, pin),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['operators'] })
+            queryClient.invalidateQueries({ queryKey: ['operators', 'current'] })
         }
     })
 }
