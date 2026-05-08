@@ -92,6 +92,7 @@ const paginationMeta = computed(() => {
           :value="params.datetime"
           @change="handleDateChange"
           type="date" 
+          :max="getTodayDate()"
           class="text-xs px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-accent/20 transition-colors"
         />
 
