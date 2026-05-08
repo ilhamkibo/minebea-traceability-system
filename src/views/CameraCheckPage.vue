@@ -14,7 +14,7 @@ const params = reactive({
   page: 1,
   limit: 10,
   judgement: '',
-  datetime: '',
+  datetime: getTodayDate(),
   search: debouncedSearch.value
 })
 

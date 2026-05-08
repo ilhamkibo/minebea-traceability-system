@@ -14,7 +14,7 @@ const limitRef = ref(10)
 const params = reactive({
   page: 1,
   limit: limitRef.value,
-  datetime: '',
+  datetime: getTodayDate(),
   search: debouncedSearch.value
 })
 
