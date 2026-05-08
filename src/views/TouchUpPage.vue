@@ -3,7 +3,7 @@ import { ref, reactive, watch, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useTouchUps } from '@/hooks/useTouchUp'
 import { useDebounce } from '@/composables/useDebounce'
-import { TriangleAlert } from 'lucide-vue-next'
+import { TriangleAlert, SearchX } from 'lucide-vue-next'
 import Pagination from '@/components/Pagination.vue'
 
 const searchRef = ref('')
@@ -130,7 +130,27 @@ const paginationMeta = computed(() => {
             </template>
             <template v-else-if="!isLoading && !isError">
               <tr>
-                <td colspan="3" class="px-4 py-10 text-center text-slate-400 font-medium">No records found.</td>
+                <td colspan="3" class="px-4 py-16 text-center border border-slate-200 dark:border-slate-700">
+                  <div class="flex flex-col items-center justify-center">
+                    <div class="bg-slate-50 dark:bg-slate-800/50 w-16 h-16 rounded-full flex items-center justify-center mb-4 border border-slate-100 dark:border-slate-700/50">
+                      <SearchX class="h-8 w-8 text-slate-400 dark:text-slate-500" />
+                    </div>
+                    <h4 class="text-base font-bold text-slate-800 dark:text-slate-200">No records found</h4>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto leading-relaxed">
+                      We couldn't find any data for the selected period or search criteria.
+                    </p>
+                    <button 
+                      v-if="searchRef"
+                      @click="searchRef = ''; params.page = 1" 
+                      class="mt-5 px-4 py-2 bg-brand-accent/10 hover:bg-brand-accent/20 text-brand-accent text-xs font-semibold rounded-lg transition-colors flex items-center gap-2"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Clear Search
+                    </button>
+                  </div>
+                </td>
               </tr>
             </template>
           </tbody>

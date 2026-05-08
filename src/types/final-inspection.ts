@@ -7,5 +7,6 @@ export interface FinalInspectionParams extends PaginationParams {
 export interface FinalInspection {
     id: number;
     qrCode: string;
+    operatorName: string;
     createdAt: string;
 }

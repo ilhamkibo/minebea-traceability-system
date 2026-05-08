@@ -4,17 +4,19 @@ import { Ref, computed, toValue } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
 import { PcbParams } from '@/types/pcb'
 
-export function useRecentPcbs() {
+export function useRecentPcbs(refetchInterval?: number) {
   return useQuery({
     queryKey: ['recent-pcbs'],
-    queryFn: () => pcbService.getPCBs({ page: 1, limit: 10 })
+    queryFn: () => pcbService.getPCBs({ page: 1, limit: 10 }),
+    refetchInterval: refetchInterval ?? false
   })
 }
 
-export function usePcbsList(params: MaybeRefOrGetter<PcbParams>) {
+export function usePcbsList(params: MaybeRefOrGetter<PcbParams>, refetchInterval?: number) {
   return useQuery({
     queryKey: computed(() => ['pcbs', toValue(params)]),
-    queryFn: () => pcbService.getPCBs(toValue(params))
+    queryFn: () => pcbService.getPCBs(toValue(params)),
+    refetchInterval: refetchInterval ?? false
   })
 }
 

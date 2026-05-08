@@ -3,6 +3,7 @@ import { PaginationParams } from "./pagination";
 export interface VisualCheck {
     id: number;
     qrCode: string;
+    operatorName: string;
     judgement: string;
     createdAt: string;
 }

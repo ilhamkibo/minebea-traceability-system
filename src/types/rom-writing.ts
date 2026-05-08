@@ -6,6 +6,7 @@ export interface RomWritingParams extends PaginationParams {
 
 export interface RomWriting {
     id: number;
+    operatorName: string;
     qrCode: string;
     createdAt: string;
 }

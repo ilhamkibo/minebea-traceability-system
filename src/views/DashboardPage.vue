@@ -9,7 +9,7 @@ import DashboardStats from '@/components/DashboardPage/DashboardStats.vue'
 import DashboardCharts from '@/components/DashboardPage/DashboardCharts.vue'
 import DashboardRecentActivity from '@/components/DashboardPage/DashboardRecentActivity.vue'
 
-const { data: recentPcbs } = useRecentPcbs()
+const { data: recentPcbs } = useRecentPcbs(60000)
 
 const storedDaterange = (() => {
   try {
@@ -33,7 +33,7 @@ const params = computed(() => ({
   paginate: false
 }))
 
-const { data: pcbList } = usePcbsList(params)
+const { data: pcbList } = usePcbsList(params, 60000)
 
 const pcbListData = computed(() => pcbList.value?.data || [])
 
@@ -57,7 +57,7 @@ const stats = computed(() => {
     <DashboardHeader v-model:daterange="daterange" />
     <DashboardOperatorCards />
     <DashboardStats :stats="stats" />
-    <DashboardCharts />
+    <DashboardCharts :pcbs="pcbListData" :daterange="daterange" />
     <DashboardRecentActivity :recentPcbs="recentPcbs?.data" />
   </div>
 </template>

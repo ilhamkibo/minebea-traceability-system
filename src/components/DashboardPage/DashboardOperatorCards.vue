@@ -11,7 +11,7 @@ const STATIONS = [
   { key: 'FinalInspect', label: 'Final Inspection', color: 'bg-red-500 dark:bg-red-400', icon: Glasses },
 ]
 
-const { data: userCurrent, isLoading } = useCurrentOperators()
+const { data: userCurrent, isLoading } = useCurrentOperators(60000)
 
 const currentOperators = computed(() => {
   return userCurrent.value?.data?.operators || []

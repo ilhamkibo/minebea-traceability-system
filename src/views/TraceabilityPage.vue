@@ -4,7 +4,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { usePcbsList, usePcbDetail } from '@/hooks/usePcbQueries'
 import { useDebounce } from '@/composables/useDebounce'
 import Pagination from '@/components/Pagination.vue'
-import { Search, ScanLine, X, QrCode, Route as RouteIcon } from 'lucide-vue-next'
+import { Search, ScanLine, X, QrCode, Route as RouteIcon, SearchX, TriangleAlert } from 'lucide-vue-next'
+import { getTodayDate, getYesterdayDate, getLast7DaysDate, getThisMonthStartDate } from '@/utils/date'
 
 const route = useRoute()
 const router = useRouter()
@@ -13,12 +14,23 @@ const router = useRouter()
 const searchRef = ref('')
 const debouncedSearch = useDebounce(searchRef, 500)
 const limitRef = ref(10)
+const isSingleDay = ref(true)
 
 const params = reactive({
   page: 1,
   limit: limitRef.value,
-  datetime: '',
+  datetime: getTodayDate(),
+  datetimeto: '',
   search: debouncedSearch.value
+})
+
+watch(isSingleDay, (val) => {
+  if (val) {
+    params.datetimeto = ''
+  } else {
+    if (!params.datetimeto) params.datetimeto = getTodayDate()
+  }
+  params.page = 1
 })
 
 watch(debouncedSearch, (newVal) => {
@@ -31,7 +43,7 @@ watch(limitRef, (newVal) => {
   params.page = 1
 })
 
-const { data: pcbResponse, isLoading: isLoadingPcbs } = usePcbsList(params)
+const { data: pcbResponse, isLoading: isLoadingPcbs, isError, error, refetch } = usePcbsList(params)
 
 const records = computed(() => {
   if (pcbResponse.value?.data && Array.isArray(pcbResponse.value.data)) {
@@ -88,9 +100,42 @@ const handleDateChange = (e: Event) => {
   const target = e.target as HTMLInputElement
   params.datetime = target.value
   params.page = 1
+  const quickFilter = document.getElementById('quick-filter-2') as HTMLSelectElement
+  if (quickFilter) quickFilter.value = 'custom'
 }
 
+const handleDateToChange = (e: Event) => {
+  const target = e.target as HTMLInputElement
+  params.datetimeto = target.value
+  params.page = 1
+  const quickFilter = document.getElementById('quick-filter-2') as HTMLSelectElement
+  if (quickFilter) quickFilter.value = 'custom'
+}
 
+const handleQuickFilter = (e: Event) => {
+  const val = (e.target as HTMLSelectElement).value
+  switch (val) {
+    case 'today':
+      isSingleDay.value = true
+      params.datetime = getTodayDate()
+      break
+    case 'yesterday':
+      isSingleDay.value = true
+      params.datetime = getYesterdayDate()
+      break
+    case 'last7days':
+      isSingleDay.value = false
+      params.datetime = getLast7DaysDate()
+      params.datetimeto = getTodayDate()
+      break
+    case 'thismonth':
+      isSingleDay.value = false
+      params.datetime = getThisMonthStartDate()
+      params.datetimeto = getTodayDate()
+      break
+  }
+  params.page = 1
+}
 </script>
 
 <template>
@@ -100,7 +145,7 @@ const handleDateChange = (e: Event) => {
       <p class="text-[10px] lg:text-xs text-slate-500 dark:text-slate-400 px-4">Track every touchpoint of your PCB production line</p>
     </div>
 
-    <div class="flex gap-4 items-center justify-center">
+    <div class="flex flex-wrap gap-4 items-center justify-center">
       <!-- Search / Filter -->
       <div class="relative w-full group max-w-md px-2 lg:px-0">
         <input 
@@ -112,13 +157,47 @@ const handleDateChange = (e: Event) => {
         <Search class="absolute left-4 lg:left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
       </div>
       <!-- Filter date -->
-      <div>
-        <input 
-          :value="params.datetime"
-          @change="handleDateChange"
-          type="date" 
-           class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 pl-9 outline-none focus:border-brand-accent transition-all shadow-sm text-xs lg:text-sm text-slate-800 dark:text-slate-200"
-        />
+      <div class="flex items-center gap-2">
+        <select 
+          id="quick-filter-2"
+          @change="handleQuickFilter"
+          class="w-full sm:w-auto text-xs lg:text-sm px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl focus:outline-none focus:border-brand-accent transition-colors cursor-pointer shadow-sm"
+        >
+          <option value="custom" disabled hidden selected>Quick Filter</option>
+          <option value="today">Today</option>
+          <option value="yesterday">Yesterday</option>
+          <option value="last7days">Last 7 Days</option>
+          <option value="thismonth">This Month</option>
+        </select>
+
+        <div class="flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1 shadow-sm">
+          <input 
+            :value="params.datetime"
+            @change="handleDateChange"
+            type="date" 
+            :max="getTodayDate()"
+            class="text-xs lg:text-sm px-1 py-1 bg-transparent text-slate-600 dark:text-slate-300 focus:outline-none transition-colors"
+          />
+          <span class="text-slate-300 dark:text-slate-600 font-medium text-xs">to</span>
+          <input 
+            :value="params.datetimeto"
+            @change="handleDateToChange"
+            type="date" 
+            :max="getTodayDate()"
+            :disabled="isSingleDay"
+            :class="isSingleDay ? 'opacity-50 cursor-not-allowed' : ''"
+            class="text-xs lg:text-sm px-1 py-1 bg-transparent text-slate-600 dark:text-slate-300 focus:outline-none transition-colors"
+          />
+          <label class="flex items-center gap-1.5 ml-1 border-l border-slate-200 dark:border-slate-700 pl-3 cursor-pointer group">
+            <div class="relative flex items-center justify-center w-3.5 h-3.5 rounded-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 group-hover:border-brand-accent transition-colors overflow-hidden">
+              <input type="checkbox" v-model="isSingleDay" class="absolute opacity-0 w-full h-full cursor-pointer z-10" />
+              <svg v-if="isSingleDay" class="w-2.5 h-2.5 text-brand-accent absolute pointer-events-none" viewBox="0 0 14 14" fill="none">
+                <path d="M3 8L6 11L11 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <span class="text-[10px] lg:text-xs text-slate-500 dark:text-slate-400 font-medium select-none group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">1 Day</span>
+          </label>
+        </div>
       </div>
     </div>
 
@@ -136,7 +215,16 @@ const handleDateChange = (e: Event) => {
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-50 dark:divide-slate-700/50 text-[11px] lg:text-xs">
-            <template v-if="records.length > 0">
+            <template v-if="isLoadingPcbs">
+              <tr v-for="i in 5" :key="'skeleton-'+i" class="animate-pulse">
+                <td class="px-4 py-3"><div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-24"></div></td>
+                <td class="px-4 py-3"><div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-32"></div></td>
+                <td class="px-4 py-3 hidden sm:table-cell"><div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-20"></div></td>
+                <td class="px-4 py-3"><div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-full w-12 mx-auto"></div></td>
+                <td class="px-4 py-3 text-center"><div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-16 mx-auto"></div></td>
+              </tr>
+            </template>
+            <template v-else-if="records.length > 0">
               <tr v-for="pcb in records" :key="pcb.id" class="hover:bg-slate-50/70 dark:hover:bg-slate-700/50 transition-colors group">
                 <td class="px-4 py-2.5 font-bold text-slate-800 dark:text-slate-200">{{ pcb.value }}</td>
                 <td class="px-4 py-2.5 text-slate-600 dark:text-slate-300">{{ pcb.lastAppearance }}</td>
@@ -158,11 +246,56 @@ const handleDateChange = (e: Event) => {
                 </td>
               </tr>
             </template>
-            <tr v-else>
-              <td colspan="5" class="p-6 text-center text-slate-400 text-xs text-medium">
-                No PCBs found matching criteria.
-              </td>
-            </tr>
+
+            <!-- Error Alert -->
+            <template v-else-if="isError">
+              <tr>
+                <td colspan="5" class="px-4 py-16 text-center border border-slate-200 dark:border-slate-700">
+                  <div class="flex flex-col items-center justify-center">
+                    <div class="bg-red-50 dark:bg-red-900/30 w-16 h-16 rounded-full flex items-center justify-center mb-4 border border-red-100 dark:border-red-800/50">
+                      <TriangleAlert class="h-8 w-8 text-red-500 dark:text-red-400" />
+                    </div>
+                    <h4 class="text-base font-bold text-slate-800 dark:text-slate-200">Failed to load data</h4>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto leading-relaxed">
+                      {{ (error as any)?.response?.data?.message || (error as any)?.message || 'An unexpected error occurred while fetching PCBs.' }}
+                    </p>
+                    <button @click="refetch()" class="mt-5 px-5 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 shadow-sm border border-slate-200 dark:border-slate-700 text-xs font-semibold rounded-lg transition-colors flex items-center gap-2">
+                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      Try Again
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </template>
+
+            <!-- Empty state -->
+            <template v-else-if="!isLoadingPcbs && !isError">
+              <tr>
+                <td colspan="5" class="px-4 py-16 text-center border border-slate-200 dark:border-slate-700">
+                  <div class="flex flex-col items-center justify-center">
+                    <div class="bg-slate-50 dark:bg-slate-800/50 w-16 h-16 rounded-full flex items-center justify-center mb-4 border border-slate-100 dark:border-slate-700/50">
+                      <SearchX class="h-8 w-8 text-slate-400 dark:text-slate-500" />
+                    </div>
+                    <h4 class="text-base font-bold text-slate-800 dark:text-slate-200">No PCBs found</h4>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto leading-relaxed">
+                      We couldn't find any data for the selected period or search criteria.
+                    </p>
+                    <button 
+                      v-if="searchRef"
+                      @click="searchRef = ''; params.page = 1" 
+                      class="mt-5 px-4 py-2 bg-brand-accent/10 hover:bg-brand-accent/20 text-brand-accent text-xs font-semibold rounded-lg transition-colors flex items-center gap-2"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Clear Search
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </template>
           </tbody>
         </table>
       </div>
@@ -226,7 +359,7 @@ const handleDateChange = (e: Event) => {
                 
                 <div class="flex items-center justify-between gap-2 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-700">
                   <div class="min-w-0">
-                    <h6 class="font-bold text-slate-700 dark:text-slate-200 text-xs leading-tight">{{ log.workFlowEventName }}</h6>
+                    <h6 class="font-bold text-slate-700 dark:text-slate-200 text-xs leading-tight">{{ log.workFlowEventName }} [{{ log.operatorName }}]</h6>
                     <div class="flex items-center mt-0.5 text-slate-400 dark:text-slate-500 space-x-1.5">
                        <span class="text-[9px] font-bold uppercase tracking-wider">
                          {{ new Date(log.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' }) }}

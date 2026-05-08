@@ -7,6 +7,7 @@ import type { FinalInspection } from "./final-inspection";
 
 export interface PcbParams extends PaginationParams {
     datetime?: string;
+    datetimeto?: string;
     itemstatus?: string;
     daterange?: number;
 }
@@ -14,6 +15,7 @@ export interface PcbParams extends PaginationParams {
 export interface TimelineEvent {
     id: number;
     passed: boolean;
+    operatorName: string;
     createdAt: string;
     workFlowEventName: string;
     type: number;

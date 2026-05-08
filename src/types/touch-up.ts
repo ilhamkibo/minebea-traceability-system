@@ -7,5 +7,6 @@ export interface TouchUpParams extends PaginationParams {
 export interface TouchUp {
     id: number;
     qrCode: string;
+    operatorName: string;
     createdAt: string;
 }

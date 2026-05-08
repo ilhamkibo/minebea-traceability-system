@@ -44,12 +44,13 @@ export function useDeleteOperator() {
     })
 }
 
-export function useCurrentOperators() {
+export function useCurrentOperators(refetchInterval?: number) {
     return useQuery<ApiResponse<{ operators: CurrentOperator[] }>, AxiosError<ApiError>>({
         queryKey: ['operators', 'current'],
         queryFn: () => operatorService.getCurrentOperators(),
         staleTime: 1000 * 10,
         refetchOnWindowFocus: true,
+        refetchInterval: refetchInterval ?? false,
     })
 }
 
