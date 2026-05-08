@@ -67,14 +67,6 @@ const routes = [
     }
   },
   {
-    path: '/process/:id',
-    name: 'Process Detail',
-    component: () => import('../views/ProcessDetailPage.vue'),
-    meta: {
-      title: 'Process Detail'
-    }
-  },
-  {
     path: '/operators',
     name: 'Operators',
     component: () => import('../views/OperatorPage.vue'),
