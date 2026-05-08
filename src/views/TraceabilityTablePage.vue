@@ -3,7 +3,6 @@ import { ref, reactive, watch, computed } from 'vue'
 import { usePcbsList } from '@/hooks/usePcbQueries'
 import { useDebounce } from '@/composables/useDebounce'
 import { getTodayDate, getYesterdayDate, getLast7DaysDate, getThisMonthStartDate } from '@/utils/date'
-import Pagination from '@/components/Pagination.vue'
 import TraceabilityTableFilters from '@/components/TraceabilityTablePage/TraceabilityTableFilters.vue'
 import TraceabilityTableHeader from '@/components/TraceabilityTablePage/TraceabilityTableHeader.vue'
 import TraceabilityTableRow from '@/components/TraceabilityTablePage/TraceabilityTableRow.vue'
@@ -59,10 +58,6 @@ const records = computed(() => {
     return pcbResponse.value
   }
   return []
-})
-
-const paginationMeta = computed(() => {
-  return pcbResponse.value?.pagination || null
 })
 
 const getMaxRows = (pcb: any) => {
@@ -208,14 +203,6 @@ const handleExport = () => {
         </table>
       </div>
       
-      <!-- Pagination -->
-      <Pagination 
-        v-if="!isLoading && records.length > 0"
-        :meta="paginationMeta"
-        v-model:page="params.page"
-        v-model:limit="params.limit"
-        :total-records="records.length"
-      />
     </div>
   </div>
 </template>
