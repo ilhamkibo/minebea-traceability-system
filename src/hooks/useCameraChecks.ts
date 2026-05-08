@@ -4,13 +4,13 @@ import type { AxiosError } from 'axios'
 import type { CameraCheck, CameraCheckParams } from '@/types/camera-check'
 import type { ApiError, ApiResponse } from '@/types/api-response'
 import { cameraCheckService } from '@/services/cameraCheckService'
+import { computed, toValue, type MaybeRefOrGetter } from 'vue'
 
-export function useCameraChecks(params: CameraCheckParams) {
+export function useCameraChecks(params: MaybeRefOrGetter<CameraCheckParams>) {
     return useQuery<ApiResponse<CameraCheck[]>, AxiosError<ApiError>>({
-        queryKey: ['camera-checks', params],
-        queryFn: () => cameraCheckService.getCameraChecks(params),
+        queryKey: computed(() => ['camera-checks', toValue(params)]),
+        queryFn: () => cameraCheckService.getCameraChecks(toValue(params)),
         staleTime: 1000 * 10,
-        // refetchInterval: 15000,
         refetchOnWindowFocus: true,
     })
 }
