@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, type Component } from 'vue'
+import { ref, watch, onMounted, onUnmounted, type Component } from 'vue'
 import { RouterView, RouterLink, useRoute } from 'vue-router'
 import { LayoutDashboard, Search, Table, Camera, Eye, Wrench, Cpu, ClipboardCheck, X, Menu, PanelLeftClose, ChevronDown, Waypoints, Sun, Moon, Users } from 'lucide-vue-next'
 import { useTheme } from '@/composables/useTheme'
@@ -60,7 +60,32 @@ const checkExpandedMenus = () => {
   })
 }
 
-onMounted(checkExpandedMenus)
+const currentTime = ref('')
+let timeInterval: number
+
+const updateTime = () => {
+  const now = new Date()
+  currentTime.value = now.toLocaleString('en-GB', {
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+    hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  }).replace(',', '')
+}
+
+onMounted(() => {
+  checkExpandedMenus()
+  updateTime()
+  timeInterval = window.setInterval(updateTime, 1000)
+})
+
+onUnmounted(() => {
+  if (timeInterval) clearInterval(timeInterval)
+})
+
 watch(() => route.path, checkExpandedMenus)
 
 const toggleSidebar = () => {
@@ -167,9 +192,9 @@ const handleMenuClick = () => {
         </div>
         
         <div class="flex items-center space-x-2 lg:space-x-4">
-          <div class="hidden sm:block text-right">
-            <p class="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-bold">Current Shift</p>
-            <p class="text-xs font-bold text-slate-700 dark:text-slate-200">Day Shift - A</p>
+          <div class="hidden sm:block text-right min-w-[120px]">
+            <p class="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-bold">Date & Time</p>
+            <p class="text-sm font-bold text-slate-700 dark:text-slate-200 tabular-nums">{{ currentTime }}</p>
           </div>
           <div class="hidden sm:block h-8 w-px bg-slate-200 dark:bg-slate-800"></div>
           <button @click="toggleTheme" class="p-2 text-slate-400 dark:text-slate-500 hover:text-brand-accent dark:hover:text-brand-accent transition-colors relative" title="Toggle Theme">
