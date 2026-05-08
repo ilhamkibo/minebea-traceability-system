@@ -195,14 +195,23 @@ const handleExport = () => {
       </div>
       
       <div class="flex flex-wrap items-center gap-2">
-        <button 
-          @click="handleExport"
-          :disabled="records.length === 0"
-          class="text-xs px-3 py-1.5 bg-brand-dark hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg flex items-center gap-1.5 transition-colors font-bold shadow-sm"
-        >
-          <Download class="w-3.5 h-3.5" />
-          Export
-        </button>
+        <div class="relative group">
+          <button 
+            @click="handleExport"
+            :disabled="records.length === 0"
+            class="text-xs px-3 py-1.5 bg-brand-dark hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg flex items-center gap-1.5 transition-colors font-bold shadow-sm"
+          >
+            <Download class="w-3.5 h-3.5" />
+            Export
+          </button>
+          
+          <!-- Tooltip for disabled state -->
+          <div v-if="records.length === 0" class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-slate-900 dark:bg-slate-700 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-20 shadow-xl border border-slate-800 dark:border-slate-600">
+            No data available to export
+            <!-- Tooltip arrow -->
+            <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900 dark:border-t-slate-700"></div>
+          </div>
+        </div>
 
         <input 
           v-model="searchRef"
