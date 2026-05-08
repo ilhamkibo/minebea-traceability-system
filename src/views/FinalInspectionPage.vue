@@ -3,6 +3,7 @@ import { ref, reactive, watch, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useFinalInspections } from '@/hooks/useFinalInspection'
 import { useDebounce } from '@/composables/useDebounce'
+import { getTodayDate } from '@/utils/date'
 import { TriangleAlert, SearchX } from 'lucide-vue-next'
 import Pagination from '@/components/Pagination.vue'
 
@@ -27,7 +28,20 @@ watch(limitRef, (newVal) => {
   params.page = 1
 })
 
-const { data: finalInspections, isLoading, isError, error, refetch } = useFinalInspections(params)
+const queryParams = computed(() => {
+  const p: any = {
+    page: params.page,
+    limit: params.limit,
+  }
+  if (params.search) {
+    p.search = params.search
+  } else {
+    p.datetime = params.datetime || getTodayDate()
+  }
+  return p
+})
+
+const { data: finalInspections, isLoading, isError, error, refetch } = useFinalInspections(queryParams)
 
 const handleDateChange = (e: Event) => {
   const target = e.target as HTMLInputElement

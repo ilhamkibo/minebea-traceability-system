@@ -32,7 +32,21 @@ watch(debouncedSearch, (newVal) => {
   params.page = 1
 })
 
-const { data: pcbResponse, isLoading, isError, error, refetch } = usePcbsList(params)
+const queryParams = computed(() => {
+  const p: any = {
+    page: params.page,
+    limit: params.limit,
+  }
+  if (params.search) {
+    p.search = params.search
+  } else {
+    p.datetime = params.datetime || getTodayDate()
+    if (params.datetimeto) p.datetimeto = params.datetimeto
+  }
+  return p
+})
+
+const { data: pcbResponse, isLoading, isError, error, refetch } = usePcbsList(queryParams)
 
 const records = computed(() => {
   if (pcbResponse.value?.data && Array.isArray(pcbResponse.value.data)) {

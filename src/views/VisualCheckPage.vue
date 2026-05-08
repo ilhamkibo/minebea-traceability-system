@@ -3,6 +3,7 @@ import { ref, reactive, watch, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useVisualChecks } from '@/hooks/useVisualCheck'
 import { useDebounce } from '@/composables/useDebounce'
+import { getTodayDate } from '@/utils/date'
 import { TriangleAlert, SearchX } from 'lucide-vue-next'
 import Pagination from '@/components/Pagination.vue'
 
@@ -28,7 +29,21 @@ watch(limitRef, (newVal) => {
   params.page = 1
 })
 
-const { data: visualChecks, isLoading, isError, error, refetch } = useVisualChecks(params)
+const queryParams = computed(() => {
+  const p: any = {
+    page: params.page,
+    limit: params.limit,
+    judgement: params.judgement,
+  }
+  if (params.search) {
+    p.search = params.search
+  } else {
+    p.datetime = params.datetime || getTodayDate()
+  }
+  return p
+})
+
+const { data: visualChecks, isLoading, isError, error, refetch } = useVisualChecks(queryParams)
 
 const setJudgement = (j: string) => {
   params.judgement = j
