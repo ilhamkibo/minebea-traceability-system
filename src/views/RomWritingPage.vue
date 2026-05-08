@@ -130,7 +130,7 @@ const paginationMeta = computed(() => {
             </template>
             <template v-else-if="!isLoading && !isError">
               <tr>
-                <td colspan="3" class="px-4 py-16 text-center border border-slate-200 dark:border-slate-700">
+                <td colspan="3" class="px-4 py-16 text-center">
                   <div class="flex flex-col items-center justify-center">
                     <div class="bg-slate-50 dark:bg-slate-800/50 w-16 h-16 rounded-full flex items-center justify-center mb-4 border border-slate-100 dark:border-slate-700/50">
                       <SearchX class="h-8 w-8 text-slate-400 dark:text-slate-500" />
