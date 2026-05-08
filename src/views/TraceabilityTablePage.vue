@@ -4,7 +4,8 @@ import { RouterLink } from 'vue-router'
 import { usePcbsList } from '@/hooks/usePcbQueries'
 import { useDebounce } from '@/composables/useDebounce'
 import { getTodayDate, getYesterdayDate, getLast7DaysDate, getThisMonthStartDate } from '@/utils/date'
-import { TriangleAlert, SearchX } from 'lucide-vue-next'
+import { TriangleAlert, SearchX, Download } from 'lucide-vue-next'
+import Pagination from '@/components/Pagination.vue'
 
 const searchRef = ref('')
 const debouncedSearch = useDebounce(searchRef, 500)
@@ -123,6 +124,66 @@ const formatDate = (date: string | undefined) => {
     hour: '2-digit', minute: '2-digit'
   })
 }
+
+const handleExport = () => {
+  if (records.value.length === 0) return
+
+  const headers = [
+    'QR Code',
+    'Camera Check Date', 'Camera Check Operator', 'Camera Check Result',
+    'Visual Check Date', 'Visual Check Operator', 'Visual Check Result',
+    'Touch Up Date', 'Touch Up Operator', 'Touch Up Result',
+    'ROM Scan Date', 'ROM Scan Operator', 'ROM Scan Result',
+    'Final Inspect Date', 'Final Inspect Operator', 'Final Inspect Result'
+  ]
+
+  const csvRows = [headers.join(',')]
+
+  records.value.forEach(pcb => {
+    const maxRows = getMaxRows(pcb)
+    for (let i = 0; i < maxRows; i++) {
+      const row = [
+        `"${i === 0 ? pcb.value : ''}"`,
+        
+        // Camera
+        `"${formatDate(pcb.cameraChecks?.[i]?.createdAt)}"`,
+        `"${pcb.cameraChecks?.[i]?.operatorName || ''}"`,
+        `"${pcb.cameraChecks?.[i]?.judgement || ''}"`,
+        
+        // Visual
+        `"${formatDate(pcb.visualChecks?.[i]?.createdAt)}"`,
+        `"${pcb.visualChecks?.[i]?.operatorName || ''}"`,
+        `"${pcb.visualChecks?.[i]?.judgement || ''}"`,
+        
+        // Touch Up
+        `"${formatDate(pcb.touchUps?.[i]?.createdAt)}"`,
+        `"${pcb.touchUps?.[i]?.operatorName || ''}"`,
+        `"${pcb.touchUps?.[i] ? 'Done' : ''}"`,
+        
+        // ROM
+        `"${formatDate(pcb.romScans?.[i]?.createdAt)}"`,
+        `"${pcb.romScans?.[i]?.operatorName || ''}"`,
+        `"${pcb.romScans?.[i] ? 'Done' : ''}"`,
+        
+        // Final
+        `"${formatDate(pcb.finalInspecs?.[i]?.createdAt)}"`,
+        `"${pcb.finalInspecs?.[i]?.operatorName || ''}"`,
+        `"${pcb.finalInspecs?.[i] ? 'Done' : ''}"`
+      ]
+      csvRows.push(row.join(','))
+    }
+  })
+
+  const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' })
+  const link = document.createElement('a')
+  const url = URL.createObjectURL(blob)
+  link.setAttribute('href', url)
+  link.setAttribute('download', `traceability_export_${new Date().toISOString().slice(0, 10)}.csv`)
+  link.style.visibility = 'hidden'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
 </script>
 
 <template>
@@ -134,6 +195,15 @@ const formatDate = (date: string | undefined) => {
       </div>
       
       <div class="flex flex-wrap items-center gap-2">
+        <button 
+          @click="handleExport"
+          :disabled="records.length === 0"
+          class="text-xs px-3 py-1.5 bg-brand-dark hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg flex items-center gap-1.5 transition-colors font-bold shadow-sm"
+        >
+          <Download class="w-3.5 h-3.5" />
+          Export
+        </button>
+
         <input 
           v-model="searchRef"
           type="text" 

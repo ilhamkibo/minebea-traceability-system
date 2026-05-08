@@ -1,6 +1,4 @@
 <script setup lang="ts">
-  import { Download } from 'lucide-vue-next'
-
   const props = defineProps<{
     daterange: number
   }>()
@@ -25,10 +23,6 @@
         <option value="0">Last 7 Days</option>
         <option value="1">Last 30 Days</option>
       </select>
-      <button class="bg-brand-dark text-white px-3 py-1.5 rounded-lg flex items-center justify-center text-[10px] lg:text-xs hover:bg-slate-800 transition-colors font-bold">
-        <Download class="w-3.5 h-3.5 lg:w-4 lg:h-4 mr-1.5" />
-        <span class="hidden lg:inline">Export Report</span>
-      </button>
     </div>
   </div>
 </template>
