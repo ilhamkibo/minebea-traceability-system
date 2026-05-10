@@ -12,7 +12,7 @@ const searchRef = ref('')
 const debouncedSearch = useDebounce(searchRef, 500)
 const isSingleDay = ref(true)
 
-const params = reactive({
+const params = ref({
   page: 1,
   limit: 10,
   datetime: getTodayDate(),
@@ -22,28 +22,30 @@ const params = reactive({
 
 watch(isSingleDay, (val) => {
   if (val) {
-    params.datetimeto = ''
+    params.value.datetimeto = ''
   } else {
-    if (!params.datetimeto) params.datetimeto = getTodayDate()
+    if (!params.value.datetimeto) params.value.datetimeto = getTodayDate()
   }
-  params.page = 1
+  params.value.page = 1
 })
 
 watch(debouncedSearch, (newVal) => {
-  params.search = newVal
-  params.page = 1
+  params.value.search = newVal
+  params.value.page = 1
 })
 
 const queryParams = computed(() => {
   const p: any = {
-    page: params.page,
-    limit: params.limit,
+    page: params.value.page,
+    limit: params.value.limit,
   }
-  if (params.search) {
-    p.search = params.search
+  if (params.value.search) {
+    p.search = params.value.search
   } else {
-    p.datetime = params.datetime || getTodayDate()
-    if (params.datetimeto) p.datetimeto = params.datetimeto
+    p.datetime = params.value.datetime || getTodayDate()
+    if (!isSingleDay.value && params.value.datetimeto) {
+      p.datetimeto = params.value.datetimeto
+    }
   }
   return p
 })
@@ -75,24 +77,24 @@ const handleQuickFilter = (val: string) => {
   switch (val) {
     case 'today':
       isSingleDay.value = true
-      params.datetime = getTodayDate()
+      params.value.datetime = getTodayDate()
       break
     case 'yesterday':
       isSingleDay.value = true
-      params.datetime = getYesterdayDate()
+      params.value.datetime = getYesterdayDate()
       break
     case 'last7days':
       isSingleDay.value = false
-      params.datetime = getLast7DaysDate()
-      params.datetimeto = getTodayDate()
+      params.value.datetime = getLast7DaysDate()
+      params.value.datetimeto = getTodayDate()
       break
     case 'thismonth':
       isSingleDay.value = false
-      params.datetime = getThisMonthStartDate()
-      params.datetimeto = getTodayDate()
+      params.value.datetime = getThisMonthStartDate()
+      params.value.datetimeto = getTodayDate()
       break
   }
-  params.page = 1
+  params.value.page = 1
 }
 
 const formatDate = (date: string | undefined) => {
