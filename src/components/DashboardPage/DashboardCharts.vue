@@ -43,7 +43,8 @@ const distribution = computed(() => {
     { name: 'Camera Check', key: 'cameraChecks' },
     { name: 'Visual Check', key: 'visualChecks' },
     { name: 'Touch Up', key: 'touchUps' },
-    { name: 'ROM Writing', key: 'romScans' },
+    // TODO(romscan): ROM Writing not yet implemented — uncomment when RomScan service is ready
+    // { name: 'ROM Writing', key: 'romScans' },
     { name: 'Final Inspection', key: 'finalInspecs' },
   ]
 

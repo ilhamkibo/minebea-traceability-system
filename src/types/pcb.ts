@@ -33,10 +33,12 @@ export interface PcbData {
     cameraChecks?: WithQrCodeId<CameraCheck>[];
     visualChecks?: WithQrCodeId<VisualCheck>[];
     touchUps?: WithQrCodeId<TouchUp>[];
-    romScans?: WithQrCodeId<RomWriting>[];
+    // TODO(romscan): ROM Writing data — uncomment when RomScan service is ready
+    // romScans?: WithQrCodeId<RomWriting>[];
     finalInspecs?: WithQrCodeId<FinalInspection>[];
 }
 
+// TODO(romscan): add 'romScans' back to Omit when RomScan field is uncommented above
 export interface PcbDetail extends Omit<PcbData, 'cameraChecks' | 'visualChecks' | 'touchUps' | 'romScans' | 'finalInspecs'> {
     timeLine: TimelineEvent[];
 }

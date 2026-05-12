@@ -90,7 +90,8 @@ const assignmentForm = ref<AssignmentRow[]>([
   { label: 'Camera Check', assignPosition: 0, operatorId: '' },
   { label: 'Visual Check', assignPosition: 1, operatorId: '' },
   { label: 'Touch Up', assignPosition: 2, operatorId: '' },
-  { label: 'Romscan', assignPosition: 3, operatorId: '' },
+  // TODO(romscan): RomScan not yet implemented — uncomment when RomScan service is ready
+  // { label: 'Romscan', assignPosition: 3, operatorId: '' },
   { label: 'Final Inspect', assignPosition: 4, operatorId: '' },
 ])
 
@@ -107,8 +108,9 @@ const openAssignmentModal = () => {
   form[0].operatorId = ops.find(o => o.workPosition.includes('CameraCheck'))?.id.toString() || ''
   form[1].operatorId = ops.find(o => o.workPosition.includes('VisualCheck'))?.id.toString() || ''
   form[2].operatorId = ops.find(o => o.workPosition.includes('TouchUp'))?.id.toString() || ''
-  form[3].operatorId = ops.find(o => o.workPosition.includes('RomScan'))?.id.toString() || ''
-  form[4].operatorId = ops.find(o => o.workPosition.includes('FinalInspect'))?.id.toString() || ''
+  // TODO(romscan): RomScan assignment not yet implemented — uncomment when RomScan is ready
+  // form[3].operatorId = ops.find(o => o.workPosition.includes('RomScan'))?.id.toString() || ''
+  form[3].operatorId = ops.find(o => o.workPosition.includes('FinalInspect'))?.id.toString() || ''
 
   assignmentPin.value = ''
   assignmentError.value = ''
@@ -245,12 +247,14 @@ const selectedOperatorName = (index: number) => {
           </button>
         </div>
       </div>
-      <div class="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+      <!-- <div class="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3"> -->
+      <div class="p-4 grid grid-cols-2 md:grid-cols-4 gap-3">
         <div v-for="position in [
           { key: 'CameraCheck', label: 'Camera Check' },
           { key: 'VisualCheck', label: 'Visual Check' },
           { key: 'TouchUp', label: 'Touch Up' },
-          { key: 'RomScan', label: 'Romscan' },
+          // TODO(romscan): RomScan station not yet implemented — uncomment when RomScan is ready
+          // { key: 'RomScan', label: 'Romscan' },
           { key: 'FinalInspect', label: 'Final Inspect' },
         ]" :key="position.key" class="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-3 border border-slate-100 dark:border-slate-700/50">
           <div class="text-[9px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">

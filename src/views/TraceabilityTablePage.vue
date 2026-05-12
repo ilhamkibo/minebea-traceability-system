@@ -68,7 +68,8 @@ const getMaxRows = (pcb: any) => {
     pcb.cameraChecks?.length || 0,
     pcb.visualChecks?.length || 0,
     pcb.touchUps?.length || 0,
-    pcb.romScans?.length || 0,
+    // TODO(romscan): ROM Writing not yet implemented — uncomment when RomScan is ready
+    // pcb.romScans?.length || 0,
     pcb.finalInspecs?.length || 0
   )
 }
@@ -140,10 +141,11 @@ const handleExport = () => {
         `"${pcb.touchUps?.[i]?.operatorName || ''}"`,
         `"${pcb.touchUps?.[i] ? 'Done' : ''}"`,
         
+        // TODO(romscan): ROM Scan export columns — uncomment when RomScan service is ready
         // ROM
-        `"${formatDate(pcb.romScans?.[i]?.createdAt)}"`,
-        `"${pcb.romScans?.[i]?.operatorName || ''}"`,
-        `"${pcb.romScans?.[i] ? 'Done' : ''}"`,
+        // `"${formatDate(pcb.romScans?.[i]?.createdAt)}"`,
+        // `"${pcb.romScans?.[i]?.operatorName || ''}"`,
+        // `"${pcb.romScans?.[i] ? 'Done' : ''}"`,
         
         // Final
         `"${formatDate(pcb.finalInspecs?.[i]?.createdAt)}"`,

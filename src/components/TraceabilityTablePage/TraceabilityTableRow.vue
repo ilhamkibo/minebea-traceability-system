@@ -78,8 +78,9 @@ const formatDate = (date: string | undefined) => {
         <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-slate-300 dark:text-slate-600">-</td>
       </template>
 
+      <!-- TODO(romscan): ROM Scan not yet implemented — uncomment when RomScan service is ready -->
       <!-- ROM Scan -->
-      <template v-if="pcb.romScans && pcb.romScans[rowIndex - 1]">
+      <!-- <template v-if="pcb.romScans && pcb.romScans[rowIndex - 1]">
         <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-[11px] text-slate-600 dark:text-slate-400">{{ formatDate(pcb.romScans[rowIndex - 1].createdAt) }}</td>
         <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-xs text-slate-700 dark:text-slate-300">{{ pcb.romScans[rowIndex - 1].operatorName }}</td>
         <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-[11px] font-bold text-blue-600 dark:text-blue-400">Done</td>
@@ -91,7 +92,7 @@ const formatDate = (date: string | undefined) => {
         <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-slate-300 dark:text-slate-600">-</td>
         <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-slate-300 dark:text-slate-600">-</td>
         <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-slate-300 dark:text-slate-600">-</td>
-      </template>
+      </template> -->
 
       <!-- Final Inspect -->
       <template v-if="pcb.finalInspecs && pcb.finalInspecs[rowIndex - 1]">
