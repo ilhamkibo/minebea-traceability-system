@@ -160,7 +160,7 @@ const handleExport = () => {
   const link = document.createElement('a')
   const url = URL.createObjectURL(blob)
   link.setAttribute('href', url)
-  link.setAttribute('download', `traceability_export_${new Date().toISOString().slice(0, 10)}.csv`)
+  link.setAttribute('download', `minebea_traceability_export_${new Date().toISOString().slice(0, 10)}.csv`)
   link.style.visibility = 'hidden'
   document.body.appendChild(link)
   link.click()
