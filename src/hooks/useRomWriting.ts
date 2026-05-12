@@ -1,3 +1,7 @@
+// TODO(romscan): RomScan service not yet implemented on the backend.
+// This hook depends on romWritingService which calls /rom_scan API.
+// Uncomment and wire up when the endpoint is available.
+
 import { useQuery } from '@tanstack/vue-query'
 import type { AxiosError } from 'axios'
 import type { RomWriting, RomWritingParams } from '@/types/rom-writing'

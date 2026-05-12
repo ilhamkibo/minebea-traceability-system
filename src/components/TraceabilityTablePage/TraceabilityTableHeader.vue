@@ -8,7 +8,8 @@
       <th colspan="3" class="px-4 py-2 font-bold border border-slate-200 dark:border-slate-700 text-center">Camera Check</th>
       <th colspan="3" class="px-4 py-2 font-bold border border-slate-200 dark:border-slate-700 text-center">Visual Check</th>
       <th colspan="3" class="px-4 py-2 font-bold border border-slate-200 dark:border-slate-700 text-center">Touch Up</th>
-      <th colspan="3" class="px-4 py-2 font-bold border border-slate-200 dark:border-slate-700 text-center">ROM Scan</th>
+      <!-- TODO(romscan): ROM Scan column header — uncomment when RomScan service is ready -->
+      <!-- <th colspan="3" class="px-4 py-2 font-bold border border-slate-200 dark:border-slate-700 text-center">ROM Scan</th> -->
       <th colspan="3" class="px-4 py-2 font-bold border border-slate-200 dark:border-slate-700 text-center">Final Inspect</th>
       <th rowspan="2" class="px-4 py-3 font-bold border border-slate-200 dark:border-slate-700 align-middle text-center min-w-[80px]">Actions</th>
     </tr>
@@ -25,10 +26,11 @@
       <th class="px-2 py-1.5 font-semibold border border-slate-200 dark:border-slate-700 text-center">Date&Time</th>
       <th class="px-2 py-1.5 font-semibold border border-slate-200 dark:border-slate-700 text-center">Operator Name</th>
       <th class="px-2 py-1.5 font-semibold border border-slate-200 dark:border-slate-700 text-center">Result</th>
+      <!-- TODO(romscan): ROM Scan sub-headers — uncomment when RomScan service is ready -->
       <!-- ROM Scan -->
-      <th class="px-2 py-1.5 font-semibold border border-slate-200 dark:border-slate-700 text-center">Date&Time</th>
+      <!-- <th class="px-2 py-1.5 font-semibold border border-slate-200 dark:border-slate-700 text-center">Date&Time</th>
       <th class="px-2 py-1.5 font-semibold border border-slate-200 dark:border-slate-700 text-center">Operator Name</th>
-      <th class="px-2 py-1.5 font-semibold border border-slate-200 dark:border-slate-700 text-center">Result</th>
+      <th class="px-2 py-1.5 font-semibold border border-slate-200 dark:border-slate-700 text-center">Result</th> -->
       <!-- Final Inspect -->
       <th class="px-2 py-1.5 font-semibold border border-slate-200 dark:border-slate-700 text-center">Date&Time</th>
       <th class="px-2 py-1.5 font-semibold border border-slate-200 dark:border-slate-700 text-center">Operator Name</th>

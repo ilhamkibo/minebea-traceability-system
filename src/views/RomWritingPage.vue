@@ -1,3 +1,6 @@
+<!-- TODO(romscan): ROM Writing page — not yet implemented on the backend.
+     The /rom_scan API endpoint does not exist yet.
+     Uncomment the route in router/index.ts and MainLayout.vue when ready. -->
 <script setup lang="ts">
 import { ref, reactive, watch, computed } from 'vue'
 import { RouterLink } from 'vue-router'

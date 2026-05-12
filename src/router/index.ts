@@ -50,14 +50,15 @@ const routes = [
       title: 'Touch Up'
     }
   },
-  {
-    path: '/process/rom-writing',
-    name: 'ROM Writing',
-    component: () => import('../views/RomWritingPage.vue'),
-    meta: {
-      title: 'ROM Writing'
-    }
-  },
+  // TODO(romscan): ROM Writing route — uncomment when RomScan is implemented on the backend
+  // {
+  //   path: '/process/rom-writing',
+  //   name: 'ROM Writing',
+  //   component: () => import('../views/RomWritingPage.vue'),
+  //   meta: {
+  //     title: 'ROM Writing'
+  //   }
+  // },
   {
     path: '/process/final-inspection',
     name: 'Final Inspection',

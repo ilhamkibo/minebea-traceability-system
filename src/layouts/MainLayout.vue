@@ -34,7 +34,8 @@ const menuItems: MenuItem[] = [
   { name: 'Camera Check', path: '/process/camera-check', icon: Camera },
   { name: 'Visual Check', path: '/process/visual-check', icon: Eye },
   { name: 'Touch Up', path: '/process/touch-up', icon: Wrench },
-  { name: 'ROM Writing', path: '/process/rom-writing', icon: Cpu },
+  // TODO(romscan): ROM Writing menu item — uncomment when RomScan route/service is ready
+  // { name: 'ROM Writing', path: '/process/rom-writing', icon: Cpu },
   { name: 'Final Inspection', path: '/process/final-inspection', icon: ClipboardCheck },
   { name: 'Operators', path: '/operators', icon: Users },
 ]
