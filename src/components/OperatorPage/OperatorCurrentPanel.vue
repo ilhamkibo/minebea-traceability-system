@@ -187,7 +187,7 @@ const openDropdown = (index: number) => {
 }
 
 // Touch Up (index 2) and Final Inspect (index 4) share the same operator
-const SYNCED_INDICES = [2, 4]
+const SYNCED_INDICES = [2, 3]
 
 const selectOperator = (index: number, operator: Operator) => {
   assignmentForm.value[index].operatorId = operator.id.toString()
