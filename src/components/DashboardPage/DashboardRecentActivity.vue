@@ -34,7 +34,7 @@ defineProps<{
             <td class="px-4 py-1.5 lg:py-2 text-slate-500 dark:text-slate-400 hidden sm:table-cell text-[10px]">{{ new Date(pcb.createdAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) }}</td>
             <td class="px-4 py-1.5 lg:py-2 text-right">
               <span
-                :class="pcb.itemStatus === 'OK' ? 'bg-emerald-200 text-emerald-700' : 'bg-rose-100 text-rose-700'"
+                :class="pcb.itemStatus === 'OK' ? 'bg-emerald-200 text-emerald-700' : pcb.itemStatus === 'NG' ? 'bg-rose-100 text-rose-700' : pcb.itemStatus === 'DISPOSAL' ? 'bg-rose-100 text-rose-700' : pcb.itemStatus === 'IDLE' ? 'bg-slate-200 text-slate-700' : 'bg-slate-200 text-slate-700'"
                 class="inline-flex items-center justify-center rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-tighter"
               >
                 {{ pcb.itemStatus }}

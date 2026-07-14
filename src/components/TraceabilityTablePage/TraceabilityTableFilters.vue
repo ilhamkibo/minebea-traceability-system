@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Download } from 'lucide-vue-next'
+import { Download, FileSpreadsheet } from 'lucide-vue-next'
 import { getTodayDate } from '@/utils/date'
 
 const props = defineProps<{
@@ -14,6 +14,7 @@ const emit = defineEmits<{
   'update:isSingleDay': [val: boolean]
   'update:searchRef': [val: string]
   'export': []
+  'export-excel': []
   'quickFilter': [val: string]
 }>()
 
@@ -49,6 +50,7 @@ const onQuickFilter = (e: Event) => {
     </div>
     
     <div class="flex flex-wrap items-center gap-2">
+      <!-- Export CSV -->
       <div class="relative group">
         <button 
           @click="emit('export')"
@@ -56,7 +58,24 @@ const onQuickFilter = (e: Event) => {
           class="text-xs px-3 py-1.5 bg-brand-dark hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg flex items-center gap-1.5 transition-colors font-bold shadow-sm"
         >
           <Download class="w-3.5 h-3.5" />
-          Export
+          CSV
+        </button>
+        
+        <div v-if="recordsCount === 0" class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-slate-900 dark:bg-slate-700 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-20 shadow-xl border border-slate-800 dark:border-slate-600">
+          No data available to export
+          <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900 dark:border-t-slate-700"></div>
+        </div>
+      </div>
+
+      <!-- Export Excel -->
+      <div class="relative group">
+        <button 
+          @click="emit('export-excel')"
+          :disabled="recordsCount === 0"
+          class="text-xs px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg flex items-center gap-1.5 transition-colors font-bold shadow-sm"
+        >
+          <FileSpreadsheet class="w-3.5 h-3.5" />
+          Excel
         </button>
         
         <div v-if="recordsCount === 0" class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-slate-900 dark:bg-slate-700 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-20 shadow-xl border border-slate-800 dark:border-slate-600">

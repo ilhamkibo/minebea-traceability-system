@@ -14,7 +14,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+  <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4">
     <div
       v-for="stat in stats"
       :key="stat.label"

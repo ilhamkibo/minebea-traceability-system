@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { usePcbsList, useRecentPcbs } from '@/hooks/usePcbQueries'
-import { ScanLine, CheckCircle, XCircle, TrendingUp } from 'lucide-vue-next'
+import { ScanLine, CheckCircle, XCircle, TrendingUp, Hourglass } from 'lucide-vue-next'
 
 import DashboardHeader from '@/components/DashboardPage/DashboardHeader.vue'
 import DashboardOperatorCards from '@/components/DashboardPage/DashboardOperatorCards.vue'
@@ -39,12 +39,14 @@ const pcbListData = computed(() => pcbList.value?.data || [])
 
 const stats = computed(() => {
   const total = pcbListData.value.length
-  const ok = pcbListData.value.filter(r => r.itemStatus === 'OK').length
-  const ng = pcbListData.value.filter(r => r.itemStatus === 'NG').length
+  const ok = pcbListData.value.filter(r => r.itemStatus.toLocaleLowerCase() === 'ok').length
+  const ng = pcbListData.value.filter(r => r.itemStatus.toLocaleLowerCase() === 'ng' || r.itemStatus.toLocaleLowerCase() === 'disposal').length
+  const idle = pcbListData.value.filter(r => r.itemStatus.toLocaleLowerCase() === 'idle').length
   const yield_rate = total > 0 ? ((ok / total) * 100).toFixed(1) : '0.0'
 
   return [
     { label: 'Total Scanned', value: total, icon: ScanLine, color: 'text-brand-accent' },
+    { label: 'Process', value: idle, icon: Hourglass, color: 'text-emerald-500' },
     { label: 'Total OK', value: ok, icon: CheckCircle, color: 'text-emerald-500' },
     { label: 'Disposal (NG)', value: ng, icon: XCircle, color: 'text-rose-500' },
     { label: 'Yield Rate', value: `${yield_rate}%`, icon: TrendingUp, color: 'text-blue-500' },
