@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, watch, computed } from 'vue'
+import XLSX from 'xlsx-js-style'
 import { usePcbsList } from '@/hooks/usePcbQueries'
 import { useDebounce } from '@/composables/useDebounce'
 import { getTodayDate, getYesterdayDate, getLast7DaysDate, getThisMonthStartDate } from '@/utils/date'
@@ -166,6 +167,265 @@ const handleExport = () => {
   link.click()
   document.body.removeChild(link)
 }
+
+const handleExportExcel = () => {
+  if (records.value.length === 0) return
+
+  const wsData: any[][] = []
+
+  // Row 0: Main headers (first row of double header)
+  const headerRow1 = [
+    'QR Code',
+    'Camera Check', '', '',
+    'Visual Check', '', '',
+    'Touch Up', '', '',
+    // TODO(romscan): ROM Scan header — uncomment when RomScan service is ready
+    // 'ROM Scan', '', '',
+    'Final Inspect', '', ''
+  ]
+  
+  // Row 1: Sub headers (second row of double header)
+  const headerRow2 = [
+    '',
+    'Date&Time', 'Operator Name', 'Result',
+    'Date&Time', 'Operator Name', 'Result',
+    'Date&Time', 'Operator Name', 'Result',
+    // TODO(romscan): ROM Scan subheaders — uncomment when RomScan service is ready
+    // 'Date&Time', 'Operator Name', 'Result',
+    'Date&Time', 'Operator Name', 'Result'
+  ]
+
+  wsData.push(headerRow1)
+  wsData.push(headerRow2)
+
+  // Initialize merges list
+  const merges: XLSX.Range[] = [
+    // Merge QR Code vertically (A1:A2)
+    { s: { r: 0, c: 0 }, e: { r: 1, c: 0 } },
+    // Merge Camera Check horizontally (B1:D1)
+    { s: { r: 0, c: 1 }, e: { r: 0, c: 3 } },
+    // Merge Visual Check horizontally (E1:G1)
+    { s: { r: 0, c: 4 }, e: { r: 0, c: 6 } },
+    // Merge Touch Up horizontally (H1:J1)
+    { s: { r: 0, c: 7 }, e: { r: 0, c: 9 } },
+    // Merge Final Inspect horizontally (K1:M1)
+    { s: { r: 0, c: 10 }, e: { r: 0, c: 12 } }
+  ]
+
+  let currentRow = 2 // 0-indexed, row 0 and 1 are headers
+
+  records.value.forEach(pcb => {
+    const maxRows = getMaxRows(pcb)
+    const startRow = currentRow
+
+    for (let i = 0; i < maxRows; i++) {
+      const rowData = new Array(13).fill('')
+      
+      // QR Code
+      rowData[0] = i === 0 ? pcb.value : ''
+
+      // Camera
+      if (pcb.cameraChecks && pcb.cameraChecks[i]) {
+        rowData[1] = formatDate(pcb.cameraChecks[i].createdAt)
+        rowData[2] = pcb.cameraChecks[i].operatorName || ''
+        rowData[3] = pcb.cameraChecks[i].judgement || ''
+      } else if (!pcb.cameraChecks || pcb.cameraChecks.length === 0) {
+        if (i === 0) {
+          rowData[1] = '-'
+          merges.push({
+            s: { r: startRow, c: 1 },
+            e: { r: startRow + maxRows - 1, c: 3 }
+          })
+        }
+      } else {
+        rowData[1] = '-'
+        rowData[2] = '-'
+        rowData[3] = '-'
+      }
+
+      // Visual
+      if (pcb.visualChecks && pcb.visualChecks[i]) {
+        rowData[4] = formatDate(pcb.visualChecks[i].createdAt)
+        rowData[5] = pcb.visualChecks[i].operatorName || ''
+        rowData[6] = pcb.visualChecks[i].judgement || ''
+      } else if (!pcb.visualChecks || pcb.visualChecks.length === 0) {
+        if (i === 0) {
+          rowData[4] = '-'
+          merges.push({
+            s: { r: startRow, c: 4 },
+            e: { r: startRow + maxRows - 1, c: 6 }
+          })
+        }
+      } else {
+        rowData[4] = '-'
+        rowData[5] = '-'
+        rowData[6] = '-'
+      }
+
+      // Touch Up
+      if (pcb.touchUps && pcb.touchUps[i]) {
+        rowData[7] = formatDate(pcb.touchUps[i].createdAt)
+        rowData[8] = pcb.touchUps[i].operatorName || ''
+        rowData[9] = 'Done'
+      } else if (!pcb.touchUps || pcb.touchUps.length === 0) {
+        if (i === 0) {
+          rowData[7] = '-'
+          merges.push({
+            s: { r: startRow, c: 7 },
+            e: { r: startRow + maxRows - 1, c: 9 }
+          })
+        }
+      } else {
+        rowData[7] = '-'
+        rowData[8] = '-'
+        rowData[9] = '-'
+      }
+
+      // Final Inspect
+      if (pcb.finalInspecs && pcb.finalInspecs[i]) {
+        rowData[10] = formatDate(pcb.finalInspecs[i].createdAt)
+        rowData[11] = pcb.finalInspecs[i].operatorName || ''
+        rowData[12] = 'Done'
+      } else if (!pcb.finalInspecs || pcb.finalInspecs.length === 0) {
+        if (i === 0) {
+          rowData[10] = '-'
+          merges.push({
+            s: { r: startRow, c: 10 },
+            e: { r: startRow + maxRows - 1, c: 12 }
+          })
+        }
+      } else {
+        rowData[10] = '-'
+        rowData[11] = '-'
+        rowData[12] = '-'
+      }
+
+      wsData.push(rowData)
+      currentRow++
+    }
+
+    // Merge QR Code vertically if multiple rows
+    if (maxRows > 1) {
+      merges.push({
+        s: { r: startRow, c: 0 },
+        e: { r: startRow + maxRows - 1, c: 0 }
+      })
+    }
+  })
+
+  const ws = XLSX.utils.aoa_to_sheet(wsData)
+
+  // Apply merges
+  ws['!merges'] = merges
+
+  // Column widths
+  ws['!cols'] = [
+    { wch: 28 }, // QR Code
+    { wch: 18 }, { wch: 20 }, { wch: 14 }, // Camera Check
+    { wch: 18 }, { wch: 20 }, { wch: 14 }, // Visual Check
+    { wch: 18 }, { wch: 20 }, { wch: 12 }, // Touch Up
+    { wch: 18 }, { wch: 20 }, { wch: 12 }, // Final Inspect
+  ]
+
+  // Styles
+  const headerStyle1 = {
+    font: { bold: true, color: { rgb: '334155' }, size: 10 },
+    fill: { fgColor: { rgb: 'E2E8F0' } }, // Slate 200
+    alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+    border: {
+      top: { style: 'thin', color: { rgb: 'CBD5E1' } },
+      bottom: { style: 'thin', color: { rgb: 'CBD5E1' } },
+      left: { style: 'thin', color: { rgb: 'CBD5E1' } },
+      right: { style: 'thin', color: { rgb: 'CBD5E1' } }
+    }
+  }
+
+  const headerStyle2 = {
+    font: { bold: true, color: { rgb: '475569' }, size: 9 },
+    fill: { fgColor: { rgb: 'F1F5F9' } }, // Slate 100
+    alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+    border: {
+      top: { style: 'thin', color: { rgb: 'CBD5E1' } },
+      bottom: { style: 'thin', color: { rgb: 'CBD5E1' } },
+      left: { style: 'thin', color: { rgb: 'CBD5E1' } },
+      right: { style: 'thin', color: { rgb: 'CBD5E1' } }
+    }
+  }
+
+  const borderStyle = {
+    top: { style: 'thin', color: { rgb: 'E2E8F0' } },
+    bottom: { style: 'thin', color: { rgb: 'E2E8F0' } },
+    left: { style: 'thin', color: { rgb: 'E2E8F0' } },
+    right: { style: 'thin', color: { rgb: 'E2E8F0' } }
+  }
+
+  const qrCodeStyle = {
+    font: { bold: true, color: { rgb: '334155' }, size: 10 },
+    alignment: { horizontal: 'left', vertical: 'center' },
+    border: borderStyle
+  }
+
+  const okStyle = {
+    font: { bold: true, color: { rgb: '059669' }, size: 10 }, // Emerald 600
+    alignment: { horizontal: 'center', vertical: 'center' },
+    border: borderStyle
+  }
+
+  const ngStyle = {
+    font: { bold: true, color: { rgb: 'DC2626' }, size: 10 }, // Rose 600
+    alignment: { horizontal: 'center', vertical: 'center' },
+    border: borderStyle
+  }
+
+  const doneStyle = {
+    font: { bold: true, color: { rgb: '2563EB' }, size: 10 }, // Blue 600
+    alignment: { horizontal: 'center', vertical: 'center' },
+    border: borderStyle
+  }
+
+  const defaultDataStyle = {
+    font: { color: { rgb: '475569' }, size: 10 },
+    alignment: { horizontal: 'center', vertical: 'center' },
+    border: borderStyle
+  }
+
+  const totalCols = headerRow1.length
+  const totalRows = wsData.length
+
+  for (let r = 0; r < totalRows; r++) {
+    for (let c = 0; c < totalCols; c++) {
+      const cellRef = XLSX.utils.encode_cell({ r, c })
+      if (!ws[cellRef]) {
+        ws[cellRef] = { v: '', t: 's' }
+      }
+      
+      if (r === 0) {
+        ws[cellRef].s = headerStyle1
+      } else if (r === 1) {
+        ws[cellRef].s = headerStyle2
+      } else {
+        const val = ws[cellRef].v
+        if (c === 0) {
+          ws[cellRef].s = qrCodeStyle
+        } else if ((c === 3 || c === 6) && val === 'OK') {
+          ws[cellRef].s = okStyle
+        } else if ((c === 3 || c === 6) && val === 'NG') {
+          ws[cellRef].s = ngStyle
+        } else if ((c === 9 || c === 12) && val === 'Done') {
+          ws[cellRef].s = doneStyle
+        } else {
+          ws[cellRef].s = defaultDataStyle
+        }
+      }
+    }
+  }
+
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, 'Traceability')
+
+  const filename = `minebea_traceability_export_${new Date().toISOString().slice(0, 10)}.xlsx`
+  XLSX.writeFile(wb, filename)
+}
 </script>
 
 <template>
@@ -176,6 +436,7 @@ const handleExport = () => {
       v-model:searchRef="searchRef"
       :records-count="records.length"
       @export="handleExport"
+      @export-excel="handleExportExcel"
       @quick-filter="handleQuickFilter"
     />
 
