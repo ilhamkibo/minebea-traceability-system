@@ -3,6 +3,7 @@ import { ref, reactive, watch, computed } from "vue";
 import XLSX from "xlsx-js-style";
 import { usePcbsListPaginated } from "@/hooks/usePcbQueries";
 import { useDebounce } from "@/composables/useDebounce";
+import { pcbService } from "@/services/pcbService";
 import {
   getTodayDate,
   getYesterdayDate,
@@ -75,7 +76,7 @@ const records = computed(() => pcbResponse.value?.data?.items ?? []);
 
 const paginationMeta = computed(() => {
   const d = pcbResponse.value?.data;
-  if (!d || !('items' in d)) return null;
+  if (!d || !("items" in d)) return null;
   return {
     page: d.page,
     limit: d.limit,
@@ -133,8 +134,28 @@ const formatDate = (date: string | undefined) => {
   });
 };
 
-const handleExport = () => {
+const buildExportParams = () => {
+  const p: any = {};
+  if (params.value.search) {
+    p.search = params.value.search;
+  } else {
+    p.datetime = params.value.datetime || getTodayDate();
+    if (!isSingleDay.value && params.value.datetimeto) {
+      p.datetimeto = params.value.datetimeto;
+    }
+  }
+  return p;
+};
+
+const handleExport = async () => {
   if (records.value.length === 0) return;
+
+  const allDataRes = await pcbService.getPCBs({
+    ...buildExportParams(),
+    paginate: false,
+  });
+  const allRecords = allDataRes.data as unknown as any[];
+  if (!allRecords || allRecords.length === 0) return;
 
   const headers = [
     "QR Code",
@@ -157,7 +178,7 @@ const handleExport = () => {
 
   const csvRows = [headers.join(",")];
 
-  records.value.forEach((pcb) => {
+  allRecords.forEach((pcb) => {
     const maxRows = getMaxRows(pcb);
     for (let i = 0; i < maxRows; i++) {
       const row = [
@@ -209,8 +230,15 @@ const handleExport = () => {
   document.body.removeChild(link);
 };
 
-const handleExportExcel = () => {
+const handleExportExcel = async () => {
   if (records.value.length === 0) return;
+
+  const allDataRes = await pcbService.getPCBs({
+    ...buildExportParams(),
+    paginate: false,
+  });
+  const allRecords = allDataRes.data as unknown as any[];
+  if (!allRecords || allRecords.length === 0) return;
 
   const wsData: any[][] = [];
 
@@ -271,7 +299,7 @@ const handleExportExcel = () => {
 
   let currentRow = 2; // 0-indexed, row 0 and 1 are headers
 
-  records.value.forEach((pcb) => {
+  allRecords.forEach((pcb) => {
     const maxRows = getMaxRows(pcb);
     const startRow = currentRow;
 
