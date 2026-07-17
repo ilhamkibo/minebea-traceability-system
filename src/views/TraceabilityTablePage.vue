@@ -156,7 +156,7 @@ const handleExport = async () => {
       const allDataRes = await pcbService.getPCBs({
         ...buildExportParams(),
         paginate: true,
-        limit: 999999,
+        limit: 999999999,
         page: 1,
       });
       const rawData = allDataRes.data;
