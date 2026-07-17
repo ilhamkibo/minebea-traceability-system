@@ -155,11 +155,14 @@ const handleExport = async () => {
     try {
       const allDataRes = await pcbService.getPCBs({
         ...buildExportParams(),
-        paginate: false,
+        paginate: true,
+        limit: 999999,
+        page: 1,
       });
-      allRecords = Array.isArray(allDataRes.data)
-        ? allDataRes.data
-        : ((allDataRes.data as any)?.items ?? []);
+      const rawData = allDataRes.data;
+      allRecords = Array.isArray(rawData)
+        ? rawData
+        : ((rawData as any)?.items ?? []);
     } catch {
       // Fallback to currently loaded paginated records
       allRecords = records.value as unknown as any[];
@@ -245,11 +248,14 @@ const handleExportExcel = async () => {
     try {
       const allDataRes = await pcbService.getPCBs({
         ...buildExportParams(),
-        paginate: false,
+        paginate: true,
+        limit: 999999,
+        page: 1,
       });
-      allRecords = Array.isArray(allDataRes.data)
-        ? allDataRes.data
-        : ((allDataRes.data as any)?.items ?? []);
+      const rawData = allDataRes.data;
+      allRecords = Array.isArray(rawData)
+        ? rawData
+        : ((rawData as any)?.items ?? []);
     } catch {
       // Fallback to currently loaded paginated records
       allRecords = records.value as unknown as any[];
