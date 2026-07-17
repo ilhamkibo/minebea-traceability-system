@@ -1,159 +1,180 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, reactive } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { usePcbsList, usePcbDetail } from '@/hooks/usePcbQueries'
-import { useDebounce } from '@/composables/useDebounce'
-import Pagination from '@/components/Pagination.vue'
-import { getTodayDate, getYesterdayDate, getLast7DaysDate, getThisMonthStartDate } from '@/utils/date'
-import TraceabilityEngineFilters from '@/components/TraceabilityPage/TraceabilityEngineFilters.vue'
-import TraceabilityEngineTable from '@/components/TraceabilityPage/TraceabilityEngineTable.vue'
-import TraceabilityTimelineModal from '@/components/TraceabilityPage/TraceabilityTimelineModal.vue'
+import { ref, computed, onMounted, watch, reactive } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { usePcbsList, usePcbDetail } from "@/hooks/usePcbQueries";
+import { useDebounce } from "@/composables/useDebounce";
+import Pagination from "@/components/Pagination.vue";
+import {
+  getTodayDate,
+  getYesterdayDate,
+  getLast7DaysDate,
+  getThisMonthStartDate,
+} from "@/utils/date";
+import TraceabilityEngineFilters from "@/components/TraceabilityPage/TraceabilityEngineFilters.vue";
+import TraceabilityEngineTable from "@/components/TraceabilityPage/TraceabilityEngineTable.vue";
+import TraceabilityTimelineModal from "@/components/TraceabilityPage/TraceabilityTimelineModal.vue";
 
-const route = useRoute()
-const router = useRouter()
+const route = useRoute();
+const router = useRouter();
 
 // Table and Pagination state
-const searchRef = ref('')
-const debouncedSearch = useDebounce(searchRef, 500)
-const limitRef = ref(10)
-const isSingleDay = ref(true)
+const searchRef = ref("");
+const debouncedSearch = useDebounce(searchRef, 500);
+const limitRef = ref(50);
+const isSingleDay = ref(true);
 
 const params = ref({
   page: 1,
   limit: limitRef.value,
   datetime: getTodayDate(),
-  datetimeto: '',
-  search: debouncedSearch.value
-})
+  datetimeto: "",
+  search: debouncedSearch.value,
+  paginate: true,
+});
 
 watch(isSingleDay, (val) => {
   if (val) {
-    params.value.datetimeto = ''
+    params.value.datetimeto = "";
   } else {
-    if (!params.value.datetimeto) params.value.datetimeto = getTodayDate()
+    if (!params.value.datetimeto) params.value.datetimeto = getTodayDate();
   }
-  params.value.page = 1
-})
+  params.value.page = 1;
+});
 
 watch(debouncedSearch, (newVal) => {
-  params.value.search = newVal
-  params.value.page = 1
-})
+  params.value.search = newVal;
+  params.value.page = 1;
+});
 
 watch(limitRef, (newVal) => {
-  params.value.limit = newVal
-  params.value.page = 1
-})
+  params.value.limit = newVal;
+  params.value.page = 1;
+});
 
 const queryParams = computed(() => {
   const p: any = {
     page: params.value.page,
     limit: params.value.limit,
-  }
+  };
   if (params.value.search) {
-    p.search = params.value.search
+    p.search = params.value.search;
   } else {
-    p.datetime = params.value.datetime || getTodayDate()
+    p.datetime = params.value.datetime || getTodayDate();
     if (!isSingleDay.value && params.value.datetimeto) {
-      p.datetimeto = params.value.datetimeto
+      p.datetimeto = params.value.datetimeto;
     }
   }
-  return p
-})
+  return p;
+});
 
-const { data: pcbResponse, isLoading: isLoadingPcbs, isError, error, refetch } = usePcbsList(queryParams)
+const {
+  data: pcbResponse,
+  isLoading: isLoadingPcbs,
+  isError,
+  error,
+  refetch,
+} = usePcbsList(queryParams);
 
 const records = computed(() => {
   if (pcbResponse.value?.data && Array.isArray(pcbResponse.value.data)) {
-    return pcbResponse.value.data
+    return pcbResponse.value.data;
   }
   if (Array.isArray(pcbResponse.value)) {
-    return pcbResponse.value
+    return pcbResponse.value;
   }
-  return []
-})
+  return [];
+});
 
 const paginationMeta = computed(() => {
-  return pcbResponse.value?.pagination || null
-})
+  return pcbResponse.value?.pagination || null;
+});
 
 // Modal state
-const isModalOpen = ref(false)
-const selectedPcbId = ref<number | undefined>(undefined)
+const isModalOpen = ref(false);
+const selectedPcbId = ref<number | undefined>(undefined);
 
-const { data: selectedPcbDetail } = usePcbDetail(selectedPcbId)
+const { data: selectedPcbDetail } = usePcbDetail(selectedPcbId);
 
 const openDetails = (id: number) => {
-  selectedPcbId.value = id
-  isModalOpen.value = true
-  router.replace({ query: { id: id.toString() }})
-}
+  selectedPcbId.value = id;
+  isModalOpen.value = true;
+  router.replace({ query: { id: id.toString() } });
+};
 
 const closeModal = () => {
-  isModalOpen.value = false
-  router.replace({ query: {} })
-}
+  isModalOpen.value = false;
+  router.replace({ query: {} });
+};
 
 onMounted(() => {
   if (route.query.id) {
-    const id = parseInt(route.query.id as string)
+    const id = parseInt(route.query.id as string);
     if (!isNaN(id)) {
-      openDetails(id)
+      openDetails(id);
     }
   }
-})
+});
 
-watch(() => route.query.id, (newId) => {
-  if (newId) {
-    const id = parseInt(newId as string)
-    if (!isNaN(id) && selectedPcbId.value !== id) {
-      openDetails(id)
+watch(
+  () => route.query.id,
+  (newId) => {
+    if (newId) {
+      const id = parseInt(newId as string);
+      if (!isNaN(id) && selectedPcbId.value !== id) {
+        openDetails(id);
+      }
+    } else {
+      isModalOpen.value = false;
     }
-  } else {
-    isModalOpen.value = false
-  }
-})
+  },
+);
 
 const handleQuickFilter = (val: string) => {
   switch (val) {
-    case 'today':
-      isSingleDay.value = true
-      params.value.datetime = getTodayDate()
-      break
-    case 'yesterday':
-      isSingleDay.value = true
-      params.value.datetime = getYesterdayDate()
-      break
-    case 'last7days':
-      isSingleDay.value = false
-      params.value.datetime = getLast7DaysDate()
-      params.value.datetimeto = getTodayDate()
-      break
-    case 'thismonth':
-      isSingleDay.value = false
-      params.value.datetime = getThisMonthStartDate()
-      params.value.datetimeto = getTodayDate()
-      break
+    case "today":
+      isSingleDay.value = true;
+      params.value.datetime = getTodayDate();
+      break;
+    case "yesterday":
+      isSingleDay.value = true;
+      params.value.datetime = getYesterdayDate();
+      break;
+    case "last7days":
+      isSingleDay.value = false;
+      params.value.datetime = getLast7DaysDate();
+      params.value.datetimeto = getTodayDate();
+      break;
+    case "thismonth":
+      isSingleDay.value = false;
+      params.value.datetime = getThisMonthStartDate();
+      params.value.datetimeto = getTodayDate();
+      break;
   }
-  params.value.page = 1
-}
+  params.value.page = 1;
+};
 </script>
 
 <template>
   <div class="mx-auto space-y-4 pb-8">
     <div class="text-center space-y-1 mb-4">
-      <h3 class="text-lg lg:text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight">Traceability Engine</h3>
-      <p class="text-[10px] lg:text-xs text-slate-500 dark:text-slate-400 px-4">Track every touchpoint of your PCB production line</p>
+      <h3
+        class="text-lg lg:text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight"
+      >
+        Traceability Engine
+      </h3>
+      <p class="text-[10px] lg:text-xs text-slate-500 dark:text-slate-400 px-4">
+        Track every touchpoint of your PCB production line
+      </p>
     </div>
 
-    <TraceabilityEngineFilters 
+    <TraceabilityEngineFilters
       v-model:params="params"
       v-model:isSingleDay="isSingleDay"
       v-model:searchRef="searchRef"
       @quick-filter="handleQuickFilter"
     />
 
-    <TraceabilityEngineTable 
+    <TraceabilityEngineTable
       :records="records"
       :is-loading="isLoadingPcbs"
       :is-error="isError"
@@ -161,11 +182,14 @@ const handleQuickFilter = (val: string) => {
       :search-ref="searchRef"
       @open-details="openDetails"
       @refetch="refetch"
-      @clear-search="searchRef = ''; params.page = 1"
+      @clear-search="
+        searchRef = '';
+        params.page = 1;
+      "
     />
 
     <!-- Pagination -->
-    <Pagination 
+    <Pagination
       v-if="!isLoadingPcbs && records.length > 0"
       :meta="paginationMeta"
       v-model:page="params.page"
@@ -174,7 +198,7 @@ const handleQuickFilter = (val: string) => {
     />
 
     <!-- Modal for PCB Details -->
-    <TraceabilityTimelineModal 
+    <TraceabilityTimelineModal
       :is-open="isModalOpen"
       :pcb-detail="selectedPcbDetail"
       @close="closeModal"
