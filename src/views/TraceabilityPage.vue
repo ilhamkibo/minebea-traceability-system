@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, reactive } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { usePcbsList, usePcbDetail } from "@/hooks/usePcbQueries";
+import { usePcbsListPaginated, usePcbDetail } from "@/hooks/usePcbQueries";
 import { useDebounce } from "@/composables/useDebounce";
 import Pagination from "@/components/Pagination.vue";
 import {
@@ -73,20 +73,21 @@ const {
   isError,
   error,
   refetch,
-} = usePcbsList(queryParams);
+} = usePcbsListPaginated(queryParams);
 
-const records = computed(() => {
-  if (pcbResponse.value?.data && Array.isArray(pcbResponse.value.data)) {
-    return pcbResponse.value.data;
-  }
-  if (Array.isArray(pcbResponse.value)) {
-    return pcbResponse.value;
-  }
-  return [];
-});
+const records = computed(() => pcbResponse.value?.data?.items ?? []);
 
 const paginationMeta = computed(() => {
-  return pcbResponse.value?.pagination || null;
+  const d = pcbResponse.value?.data;
+  if (!d || !('items' in d)) return null;
+  return {
+    page: d.page,
+    limit: d.limit,
+    totalPages: d.totalPages,
+    total: d.total,
+    hasPreviousPage: d.hasPreviousPage,
+    hasNextPage: d.hasNextPage,
+  };
 });
 
 // Modal state
