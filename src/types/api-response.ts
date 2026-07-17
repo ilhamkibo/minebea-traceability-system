@@ -1,9 +1,10 @@
 import { PaginationMeta } from "./pagination";
 
 export interface ApiResponse<T> {
-  status: boolean
-  message: string
-  data: T
+  status: boolean;
+  message: string;
+  data: T;
+  pagination?: PaginationMeta;
 }
 
 export interface PaginatedData<T> {
