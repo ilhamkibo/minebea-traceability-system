@@ -30,7 +30,7 @@ const params = computed(() => ({
   page: 1,
   limit: 2,
   daterange: daterange.value,
-  paginate: false
+  paginate: false as const
 }))
 
 const { data: pcbList } = usePcbsList(params, 60000)
@@ -60,6 +60,6 @@ const stats = computed(() => {
     <DashboardOperatorCards />
     <DashboardStats :stats="stats" />
     <DashboardCharts :pcbs="pcbListData" :daterange="daterange" />
-    <DashboardRecentActivity :recentPcbs="recentPcbs?.data" />
+    <DashboardRecentActivity :recentPcbs="recentPcbs?.data?.items" />
   </div>
 </template>

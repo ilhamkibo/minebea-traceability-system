@@ -4,6 +4,7 @@ import { Ref, computed, toValue } from "vue";
 import type { MaybeRefOrGetter } from "vue";
 import { PcbParams } from "@/types/pcb";
 
+/** Fetch 10 most recent PCBs with pagination metadata (for Dashboard Recent Activity) */
 export function useRecentPcbs(refetchInterval?: number) {
   return useQuery({
     queryKey: ["recent-pcbs"],
@@ -12,13 +13,26 @@ export function useRecentPcbs(refetchInterval?: number) {
   });
 }
 
+/** Fetch PCBs without pagination — returns plain array (for stats/charts) */
 export function usePcbsList(
-  params: MaybeRefOrGetter<PcbParams>,
+  params: MaybeRefOrGetter<PcbParams & { paginate?: false }>,
   refetchInterval?: number,
 ) {
   return useQuery({
     queryKey: computed(() => ["pcbs", toValue(params)]),
-    queryFn: () => pcbService.getPCBs(toValue(params)),
+    queryFn: () => pcbService.getPCBs({ ...toValue(params), paginate: false }),
+    refetchInterval: refetchInterval ?? false,
+  });
+}
+
+/** Fetch PCBs with pagination — returns PaginatedData { items, page, total, ... } (for tables) */
+export function usePcbsListPaginated(
+  params: MaybeRefOrGetter<PcbParams & { paginate?: true }>,
+  refetchInterval?: number,
+) {
+  return useQuery({
+    queryKey: computed(() => ["pcbs-paginated", toValue(params)]),
+    queryFn: () => pcbService.getPCBs({ ...toValue(params), paginate: true }),
     refetchInterval: refetchInterval ?? false,
   });
 }

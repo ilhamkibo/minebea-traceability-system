@@ -1,12 +1,17 @@
 import api from "@/lib/api";
-import { ApiResponse } from "@/types/api-response";
+import { ApiResponse, PaginatedData } from "@/types/api-response";
 import type { PcbData, PcbDetail, PcbParams } from "@/types/pcb";
 import { cleanParams } from "@/utils/format";
 
 class PCBService {
   private baseUrl = "/qr_code";
 
-  async getPCBs(params: PcbParams): Promise<ApiResponse<PcbData[]>> {
+  // Overload: paginate: true → returns PaginatedData (with items, page, total, etc.)
+  async getPCBs(params: PcbParams & { paginate: true }): Promise<ApiResponse<PaginatedData<PcbData>>>;
+  // Overload: paginate: false / undefined → returns plain array
+  async getPCBs(params: PcbParams & { paginate?: false }): Promise<ApiResponse<PcbData[]>>;
+  // Implementation
+  async getPCBs(params: PcbParams): Promise<ApiResponse<PaginatedData<PcbData> | PcbData[]>> {
     const filterParams = cleanParams(params);
     const res = await api.get(this.baseUrl, { params: filterParams });
     return res.data;

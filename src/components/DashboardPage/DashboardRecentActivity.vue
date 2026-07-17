@@ -4,6 +4,8 @@ import type { PcbData } from '@/types/pcb'
 defineProps<{
   recentPcbs: PcbData[] | undefined
 }>()
+
+
 </script>
 
 <template>

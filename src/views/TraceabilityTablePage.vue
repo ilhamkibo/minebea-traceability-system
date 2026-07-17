@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, watch, computed } from "vue";
 import XLSX from "xlsx-js-style";
-import { usePcbsList } from "@/hooks/usePcbQueries";
+import { usePcbsListPaginated } from "@/hooks/usePcbQueries";
 import { useDebounce } from "@/composables/useDebounce";
 import {
   getTodayDate,
@@ -13,18 +13,19 @@ import TraceabilityTableFilters from "@/components/TraceabilityTablePage/Traceab
 import TraceabilityTableHeader from "@/components/TraceabilityTablePage/TraceabilityTableHeader.vue";
 import TraceabilityTableRow from "@/components/TraceabilityTablePage/TraceabilityTableRow.vue";
 import TraceabilityTableEmptyState from "@/components/TraceabilityTablePage/TraceabilityTableEmptyState.vue";
+import Pagination from "@/components/Pagination.vue";
 
 const searchRef = ref("");
 const debouncedSearch = useDebounce(searchRef, 500);
 const isSingleDay = ref(true);
+const limitRef = ref(50);
 
 const params = ref({
   page: 1,
-  limit: 50,
+  limit: limitRef.value,
   datetime: getTodayDate(),
   datetimeto: "",
   search: debouncedSearch.value,
-  paginate: true,
 });
 
 watch(isSingleDay, (val) => {
@@ -38,6 +39,11 @@ watch(isSingleDay, (val) => {
 
 watch(debouncedSearch, (newVal) => {
   params.value.search = newVal;
+  params.value.page = 1;
+});
+
+watch(limitRef, (newVal) => {
+  params.value.limit = newVal;
   params.value.page = 1;
 });
 
@@ -63,16 +69,21 @@ const {
   isError,
   error,
   refetch,
-} = usePcbsList(queryParams);
+} = usePcbsListPaginated(queryParams);
 
-const records = computed(() => {
-  if (pcbResponse.value?.data && Array.isArray(pcbResponse.value.data)) {
-    return pcbResponse.value.data;
-  }
-  if (Array.isArray(pcbResponse.value)) {
-    return pcbResponse.value;
-  }
-  return [];
+const records = computed(() => pcbResponse.value?.data?.items ?? []);
+
+const paginationMeta = computed(() => {
+  const d = pcbResponse.value?.data;
+  if (!d || !('items' in d)) return null;
+  return {
+    page: d.page,
+    limit: d.limit,
+    totalPages: d.totalPages,
+    total: d.total,
+    hasPreviousPage: d.hasPreviousPage,
+    hasNextPage: d.hasNextPage,
+  };
 });
 
 const getMaxRows = (pcb: any) => {
@@ -499,7 +510,7 @@ const handleExportExcel = () => {
       class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden relative transition-colors"
     >
       <div
-        class="overflow-x-auto min-h-[300px] border border-slate-200 dark:border-slate-700 rounded-lg"
+        class="overflow-x-auto min-h-75 border border-slate-200 dark:border-slate-700 rounded-lg"
       >
         <table
           class="w-full text-left text-xs whitespace-nowrap border-collapse"
@@ -531,5 +542,14 @@ const handleExportExcel = () => {
         </table>
       </div>
     </div>
+
+    <!-- Pagination -->
+    <Pagination
+      v-if="!isLoading && records.length > 0"
+      :meta="paginationMeta"
+      v-model:page="params.page"
+      v-model:limit="limitRef"
+      :total-records="records.length"
+    />
   </div>
 </template>
