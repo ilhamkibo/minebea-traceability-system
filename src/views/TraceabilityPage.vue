@@ -23,6 +23,17 @@ const debouncedSearch = useDebounce(searchRef, 500);
 const limitRef = ref(50);
 const isSingleDay = ref(true);
 
+const itemStatusFilter = ref<number | null>(null);
+
+const toggleItemStatus = (status: number) => {
+  if (itemStatusFilter.value === status) {
+    itemStatusFilter.value = null;
+  } else {
+    itemStatusFilter.value = status;
+  }
+  params.value.page = 1;
+};
+
 const params = ref({
   page: 1,
   limit: limitRef.value,
@@ -64,6 +75,9 @@ const queryParams = computed(() => {
       p.datetimeto = params.value.datetimeto;
     }
   }
+  if (itemStatusFilter.value !== null) {
+    p.itemStatus = itemStatusFilter.value;
+  }
   return p;
 });
 
@@ -79,7 +93,7 @@ const records = computed(() => pcbResponse.value?.data?.items ?? []);
 
 const paginationMeta = computed(() => {
   const d = pcbResponse.value?.data;
-  if (!d || !('items' in d)) return null;
+  if (!d || !("items" in d)) return null;
   return {
     page: d.page,
     limit: d.limit,
@@ -172,7 +186,9 @@ const handleQuickFilter = (val: string) => {
       v-model:params="params"
       v-model:isSingleDay="isSingleDay"
       v-model:searchRef="searchRef"
+      :itemStatusFilter="itemStatusFilter"
       @quick-filter="handleQuickFilter"
+      @toggle-item-status="toggleItemStatus"
     />
 
     <TraceabilityEngineTable

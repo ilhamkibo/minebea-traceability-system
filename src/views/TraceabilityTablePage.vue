@@ -21,6 +21,17 @@ const debouncedSearch = useDebounce(searchRef, 500);
 const isSingleDay = ref(true);
 const limitRef = ref(50);
 
+const itemStatusFilter = ref<number | null>(null);
+
+const toggleItemStatus = (status: number) => {
+  if (itemStatusFilter.value === status) {
+    itemStatusFilter.value = null;
+  } else {
+    itemStatusFilter.value = status;
+  }
+  params.value.page = 1;
+};
+
 const params = ref({
   page: 1,
   limit: limitRef.value,
@@ -60,6 +71,9 @@ const queryParams = computed(() => {
     if (!isSingleDay.value && params.value.datetimeto) {
       p.datetimeto = params.value.datetimeto;
     }
+  }
+  if (itemStatusFilter.value !== null) {
+    p.itemStatus = itemStatusFilter.value;
   }
   return p;
 });
@@ -553,9 +567,11 @@ const handleExportExcel = async () => {
       v-model:isSingleDay="isSingleDay"
       v-model:searchRef="searchRef"
       :records-count="records.length"
+      :item-status-filter="itemStatusFilter"
       @export="handleExport"
       @export-excel="handleExportExcel"
       @quick-filter="handleQuickFilter"
+      @toggle-item-status="toggleItemStatus"
     />
 
     <!-- Data Table -->

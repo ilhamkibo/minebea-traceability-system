@@ -164,7 +164,7 @@ const paginationMeta = computed(() => {
                 </td>
                 <td class="px-4 py-2.5 text-right">
                   <RouterLink
-                    :to="{ name: 'Traceability', query: { qr: pcb.qrCode } }"
+                    :to="{ name: 'Traceability', query: { id: pcb.id } }"
                     class="bg-brand-dark/5 dark:bg-white/10 hover:bg-brand-dark dark:hover:bg-white/20 text-brand-dark dark:text-white hover:text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all"
                   >
                     Details
