@@ -18,6 +18,9 @@ import {
   Sun,
   Moon,
   Users,
+  PencilLine,
+  UserPlus,
+  SquarePlus,
 } from "lucide-vue-next";
 import { useTheme } from "@/composables/useTheme";
 
@@ -64,6 +67,27 @@ const menuItems: MenuItem[] = [
   { name: "Operators", path: "/operators", icon: Users },
 ];
 
+const adminMenuItems: MenuItem[] = [
+  {
+    name: "Final Inspect Manual",
+    path: "/final-inspect-manual",
+    icon: PencilLine,
+    items: [
+      {
+        name: "Add Final Inspection",
+        path: "/add-final-inspection",
+        icon: SquarePlus,
+      },
+      { name: "History", path: "/final-inspect-manual", icon: Table },
+    ],
+  },
+  {
+    name: "Add User",
+    path: "/add-user",
+    icon: UserPlus,
+  },
+];
+
 const expandedMenus = ref<string[]>([]);
 
 const toggleExpandedMenu = (menuName: string) => {
@@ -76,7 +100,8 @@ const toggleExpandedMenu = (menuName: string) => {
 };
 
 const checkExpandedMenus = () => {
-  menuItems.forEach((item) => {
+  const allMenus = [...menuItems, ...adminMenuItems];
+  allMenus.forEach((item) => {
     if (
       item.items &&
       item.items.some((subItem) => route.path === subItem.path)
@@ -223,6 +248,72 @@ const handleMenuClick = () => {
             </div>
           </div>
         </div>
+
+        <!-- Admin Menu Section -->
+        <template v-if="adminMenuItems.length > 0">
+          <div class="flex items-center gap-2 py-4 px-1">
+            <div class="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
+            <span
+              class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest whitespace-nowrap"
+            >
+              Administrators
+            </span>
+            <div class="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
+          </div>
+
+          <div v-for="item in adminMenuItems" :key="item.path">
+            <div v-if="!item.items">
+              <RouterLink
+                :to="item.path"
+                @click="handleMenuClick"
+                class="flex items-center px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 group"
+                :class="
+                  route.path === item.path
+                    ? 'bg-brand-accent text-white shadow-md'
+                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-brand-accent dark:hover:text-white'
+                "
+              >
+                <component :is="item.icon" class="mr-3 w-5 h-5 shrink-0" />
+                {{ item.name }}
+              </RouterLink>
+            </div>
+            <div v-else class="space-y-1">
+              <button
+                @click="toggleExpandedMenu(item.name)"
+                class="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 group text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-brand-accent dark:hover:text-white text-left"
+              >
+                <div class="flex items-center">
+                  <component :is="item.icon" class="mr-3 w-5 h-5 shrink-0" />
+                  {{ item.name }}
+                </div>
+                <ChevronDown
+                  class="w-5 h-5 transition-transform duration-200"
+                  :class="{ 'rotate-180': expandedMenus.includes(item.name) }"
+                />
+              </button>
+              <div
+                v-if="expandedMenus.includes(item.name)"
+                class="pl-4 space-y-1 mt-1"
+              >
+                <RouterLink
+                  v-for="subItem in item.items"
+                  :key="subItem.path"
+                  :to="subItem.path"
+                  @click="handleMenuClick"
+                  class="flex items-center px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 group"
+                  :class="
+                    route.path === subItem.path
+                      ? 'bg-brand-accent text-white shadow-md'
+                      : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-brand-accent dark:hover:text-white'
+                  "
+                >
+                  <component :is="subItem.icon" class="mr-3 w-4 h-4 shrink-0" />
+                  {{ subItem.name }}
+                </RouterLink>
+              </div>
+            </div>
+          </div>
+        </template>
       </nav>
 
       <!-- User Profile -->
@@ -262,7 +353,7 @@ const handleMenuClick = () => {
         </div>
 
         <div class="flex items-center space-x-2 lg:space-x-4">
-          <div class="hidden sm:block text-right min-w-[120px]">
+          <div class="hidden sm:block text-right min-w-30">
             <p
               class="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-bold"
             >

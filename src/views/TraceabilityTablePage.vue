@@ -147,7 +147,6 @@ const formatDate = (date: string | undefined) => {
     minute: "2-digit",
   });
 };
-
 const buildExportParams = () => {
   const p: any = {};
   if (params.value.search) {
