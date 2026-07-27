@@ -88,6 +88,12 @@ const adminMenuItems: MenuItem[] = [
   },
 ];
 
+const isAdminPopupOpen = ref(false);
+
+const toggleAdminPopup = () => {
+  isAdminPopupOpen.value = !isAdminPopupOpen.value;
+};
+
 const expandedMenus = ref<string[]>([]);
 
 const toggleExpandedMenu = (menuName: string) => {
@@ -151,6 +157,11 @@ const handleMenuClick = () => {
   if (window.innerWidth < 1024) {
     isSidebarOpen.value = false;
   }
+};
+
+const handleAdminMenuClick = () => {
+  isAdminPopupOpen.value = false;
+  handleMenuClick();
 };
 </script>
 
@@ -248,81 +259,94 @@ const handleMenuClick = () => {
             </div>
           </div>
         </div>
+      </nav>
 
-        <!-- Admin Menu Section -->
-        <template v-if="adminMenuItems.length > 0">
-          <div class="flex items-center gap-2 py-4 px-1">
-            <div class="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
-            <span
-              class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest whitespace-nowrap"
+      <!-- Admin Trigger -->
+      <div class="p-6 border-t border-slate-100 dark:border-slate-800 relative">
+        <button
+          @click="toggleAdminPopup"
+          class="w-full cursor-pointer text-md text-center text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-tighter hover:text-brand-accent dark:hover:text-brand-accent transition-colors"
+        >
+          Minebea Line
+        </button>
+
+        <!-- Admin Popup -->
+        <Transition
+          enter-active-class="transition ease-out duration-200"
+          enter-from-class="opacity-0 translate-y-2"
+          enter-to-class="opacity-100 translate-y-0"
+          leave-active-class="transition ease-in duration-150"
+          leave-from-class="opacity-100 translate-y-0"
+          leave-to-class="opacity-0 translate-y-2"
+        >
+          <div
+            v-if="isAdminPopupOpen"
+            class="absolute bottom-full left-4 right-4 mb-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden z-50"
+          >
+            <div
+              class="px-4 py-3 border-b border-slate-100 dark:border-slate-700"
             >
-              Administrators
-            </span>
-            <div class="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
-          </div>
-
-          <div v-for="item in adminMenuItems" :key="item.path">
-            <div v-if="!item.items">
-              <RouterLink
-                :to="item.path"
-                @click="handleMenuClick"
-                class="flex items-center px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 group"
-                :class="
-                  route.path === item.path
-                    ? 'bg-brand-accent text-white shadow-md'
-                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-brand-accent dark:hover:text-white'
-                "
+              <p
+                class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest"
               >
-                <component :is="item.icon" class="mr-3 w-5 h-5 shrink-0" />
-                {{ item.name }}
-              </RouterLink>
+                Administrator Pages
+              </p>
             </div>
-            <div v-else class="space-y-1">
-              <button
-                @click="toggleExpandedMenu(item.name)"
-                class="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 group text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-brand-accent dark:hover:text-white text-left"
+            <div class="py-1">
+              <!-- Flat list: all admin pages including sub-items -->
+              <template
+                v-for="item in adminMenuItems"
+                :key="'admin-' + item.path"
               >
-                <div class="flex items-center">
-                  <component :is="item.icon" class="mr-3 w-5 h-5 shrink-0" />
-                  {{ item.name }}
-                </div>
-                <ChevronDown
-                  class="w-5 h-5 transition-transform duration-200"
-                  :class="{ 'rotate-180': expandedMenus.includes(item.name) }"
-                />
-              </button>
-              <div
-                v-if="expandedMenus.includes(item.name)"
-                class="pl-4 space-y-1 mt-1"
-              >
+                <!-- If item has sub-items, render each sub-item as a flat link -->
                 <RouterLink
+                  v-if="item.items"
                   v-for="subItem in item.items"
                   :key="subItem.path"
                   :to="subItem.path"
-                  @click="handleMenuClick"
-                  class="flex items-center px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 group"
+                  @click="handleAdminMenuClick"
+                  class="flex items-center px-4 py-3 text-sm font-medium transition-all duration-200 group hover:bg-slate-50 dark:hover:bg-slate-700"
                   :class="
                     route.path === subItem.path
-                      ? 'bg-brand-accent text-white shadow-md'
-                      : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-brand-accent dark:hover:text-white'
+                      ? 'text-brand-accent'
+                      : 'text-slate-600 dark:text-slate-300'
                   "
                 >
-                  <component :is="subItem.icon" class="mr-3 w-4 h-4 shrink-0" />
-                  {{ subItem.name }}
+                  <component
+                    :is="subItem.icon"
+                    class="mr-3 w-5 h-5 shrink-0 text-slate-400 dark:text-slate-500 group-hover:text-brand-accent"
+                  />
+                  <span>{{ subItem.name }}</span>
                 </RouterLink>
-              </div>
+                <!-- If item has no sub-items, render as direct link -->
+                <RouterLink
+                  v-else
+                  :to="item.path"
+                  @click="handleAdminMenuClick"
+                  class="flex items-center px-4 py-3 text-sm font-medium transition-all duration-200 group hover:bg-slate-50 dark:hover:bg-slate-700"
+                  :class="
+                    route.path === item.path
+                      ? 'text-brand-accent'
+                      : 'text-slate-600 dark:text-slate-300'
+                  "
+                >
+                  <component
+                    :is="item.icon"
+                    class="mr-3 w-5 h-5 shrink-0 text-slate-400 dark:text-slate-500 group-hover:text-brand-accent"
+                  />
+                  <span>{{ item.name }}</span>
+                </RouterLink>
+              </template>
             </div>
           </div>
-        </template>
-      </nav>
+        </Transition>
 
-      <!-- User Profile -->
-      <div class="p-6 border-t border-slate-100 dark:border-slate-800">
-        <p
-          class="text-md text-center text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-tighter"
-        >
-          Minebea Line
-        </p>
+        <!-- Backdrop to close popup -->
+        <div
+          v-if="isAdminPopupOpen"
+          @click="isAdminPopupOpen = false"
+          class="fixed inset-0 z-40"
+        ></div>
       </div>
     </aside>
 

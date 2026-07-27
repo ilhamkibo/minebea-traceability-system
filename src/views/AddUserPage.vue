@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { Loader2, UserPlus } from "lucide-vue-next";
+import { Loader2, UserPlus, LogOut } from "lucide-vue-next";
 import { useToast } from "@/composables/useToast";
 import { isAuthenticated, clearAuthToken } from "@/lib/api";
 import { authService } from "@/services/authService";
@@ -19,6 +19,12 @@ const regUsername = ref("");
 const regPassword = ref("");
 const isRegistering = ref(false);
 const registerError = ref("");
+
+// Sign out handler
+const handleSignOut = () => {
+  clearAuthToken();
+  isLoggedIn.value = false;
+};
 
 // Login handler
 const handleLogin = async () => {
@@ -74,15 +80,25 @@ const handleRegister = async () => {
 <template>
   <div class="max-w-4xl mx-auto space-y-4 pb-8">
     <!-- Header -->
-    <div class="text-center space-y-1 mb-4">
-      <h3
-        class="text-lg lg:text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight"
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h3
+          class="text-lg lg:text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight"
+        >
+          Add User
+        </h3>
+        <p class="text-[10px] lg:text-xs text-slate-500 dark:text-slate-400">
+          Create a new user account
+        </p>
+      </div>
+      <button
+        v-if="isLoggedIn"
+        @click="handleSignOut"
+        class="cursor-pointer flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 dark:text-red-400 dark:bg-red-900/20 dark:hover:bg-red-900/40 rounded-lg transition-all"
       >
-        Add User
-      </h3>
-      <p class="text-[10px] lg:text-xs text-slate-500 dark:text-slate-400 px-4">
-        Create a new user account
-      </p>
+        <LogOut class="w-4 h-4" />
+        Sign Out
+      </button>
     </div>
 
     <!-- Login Gate -->

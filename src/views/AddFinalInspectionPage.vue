@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, nextTick } from "vue";
-import { Check, Loader2 } from "lucide-vue-next";
+import { Check, Loader2, LogOut } from "lucide-vue-next";
 import { pcbService } from "@/services/pcbService";
 import { useCreateFinalInspection } from "@/hooks/useFinalInspection";
 import { useToast } from "@/composables/useToast";
@@ -37,6 +37,12 @@ const selectedOperatorId = ref<string | null>(null);
 // Submit mutation
 const { mutateAsync: createFinalInspection, isPending: isSubmitting } =
   useCreateFinalInspection();
+
+// Sign out handler
+const handleSignOut = () => {
+  clearAuthToken();
+  isLoggedIn.value = false;
+};
 
 // Login handler
 const handleLogin = async () => {
@@ -146,15 +152,25 @@ const handleSubmit = async () => {
 <template>
   <div class="max-w-4xl mx-auto space-y-4 pb-8">
     <!-- Header -->
-    <div class="text-center space-y-1 mb-4">
-      <h3
-        class="text-lg lg:text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight"
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h3
+          class="text-lg lg:text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight"
+        >
+          Add Final Inspection
+        </h3>
+        <p class="text-[10px] lg:text-xs text-slate-500 dark:text-slate-400">
+          Scan a QR code to create a new final inspection record
+        </p>
+      </div>
+      <button
+        v-if="isLoggedIn"
+        @click="handleSignOut"
+        class="cursor-pointer flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 dark:text-red-400 dark:bg-red-900/20 dark:hover:bg-red-900/40 rounded-lg transition-all"
       >
-        Add Final Inspection
-      </h3>
-      <p class="text-[10px] lg:text-xs text-slate-500 dark:text-slate-400 px-4">
-        Scan a QR code to create a new final inspection record
-      </p>
+        <LogOut class="w-4 h-4" />
+        Sign Out
+      </button>
     </div>
 
     <!-- Login Gate -->
