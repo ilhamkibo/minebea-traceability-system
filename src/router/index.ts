@@ -5,9 +5,9 @@ const routes = [
   {
     path: "/",
     name: "Dashboard",
-    component: () => import("../views/DashboardPage.vue"),
+    component: () => import("../views/TraceabilityPage.vue"),
     meta: {
-      title: "Dashboard",
+      title: "Traceability Timeline",
     },
   },
   {
@@ -34,14 +34,14 @@ const routes = [
       title: "Camera Check",
     },
   },
-  {
-    path: "/process/visual-check",
-    name: "Visual Check",
-    component: () => import("../views/VisualCheckPage.vue"),
-    meta: {
-      title: "Visual Check",
-    },
-  },
+  // {
+  //   path: "/process/visual-check",
+  //   name: "Visual Check",
+  //   component: () => import("../views/VisualCheckPage.vue"),
+  //   meta: {
+  //     title: "Visual Check",
+  //   },
+  // },
   {
     path: "/process/touch-up",
     name: "Touch Up",

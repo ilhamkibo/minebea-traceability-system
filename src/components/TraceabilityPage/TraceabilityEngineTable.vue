@@ -100,7 +100,7 @@ const emit = defineEmits<{
                 {{ new Date(pcb.createdAt).toLocaleString('en-GB') }}
               </td>
               <td class="px-4 py-2.5">
-                <span :class="pcb.itemStatus === 'OK' ? 'bg-emerald-200 text-emerald-700' : pcb.itemStatus === 'NG' ? 'bg-rose-100 text-rose-700' : 'bg-slate-200 text-slate-600'" class="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[9px] lg:text-[10px] font-black uppercase tracking-tighter">
+                <span :class="pcb.itemStatus === 'OK' ? 'bg-emerald-200 text-emerald-700' : pcb.itemStatus === 'DISPOSAL' ? 'bg-rose-100 text-rose-700' : 'bg-slate-200 text-slate-600'" class="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[9px] lg:text-[10px] font-black uppercase tracking-tighter">
                   {{ pcb.itemStatus }}
                 </span>
               </td>

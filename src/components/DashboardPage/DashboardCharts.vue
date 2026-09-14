@@ -42,7 +42,7 @@ const dailyData = computed(() => {
 const distribution = computed(() => {
   const processes: { name: string; key: keyof PcbData }[] = [
     { name: "Camera Check", key: "cameraChecks" },
-    { name: "Visual Check", key: "visualChecks" },
+    // { name: "Visual Check", key: "visualChecks" },
     { name: "Touch Up", key: "touchUps" },
     // TODO(romscan): ROM Writing not yet implemented — uncomment when RomScan service is ready
     // { name: 'ROM Writing', key: 'romScans' },

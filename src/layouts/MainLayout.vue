@@ -45,17 +45,18 @@ interface SubMenuItem {
 
 const menuItems: MenuItem[] = [
   { name: "Dashboard", path: "/", icon: LayoutDashboard },
-  {
-    name: "Traceability",
-    path: "/traceability",
-    icon: Search,
-    items: [
-      { name: "Traceability Timeline", path: "/traceability", icon: Waypoints },
-      { name: "Traceability Table", path: "/traceability-table", icon: Table },
-    ],
-  },
+  { name: "Traceability Log", path: "/traceability-table", icon: Search },
+  // {
+  //   name: "Traceability",
+  //   path: "/traceability",
+  //   icon: Search,
+  //   items: [
+  //     { name: "Traceability Timeline", path: "/traceability", icon: Waypoints },
+  //     { name: "Traceability Table", path: "/traceability-table", icon: Table },
+  //   ],
+  // },
   { name: "Camera Check", path: "/process/camera-check", icon: Camera },
-  { name: "Visual Check", path: "/process/visual-check", icon: Eye },
+  // { name: "Visual Check", path: "/process/visual-check", icon: Eye },
   { name: "Touch Up", path: "/process/touch-up", icon: Wrench },
   // TODO(romscan): ROM Writing menu item — uncomment when RomScan route/service is ready
   // { name: 'ROM Writing', path: '/process/rom-writing', icon: Cpu },

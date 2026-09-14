@@ -105,7 +105,7 @@ const assignmentError = ref("");
 
 const assignmentForm = ref<AssignmentRow[]>([
   { label: "Camera Check", assignPosition: 0, operatorId: "" },
-  { label: "Visual Check", assignPosition: 1, operatorId: "" },
+  // { label: "Visual Check", assignPosition: 1, operatorId: "" },
   { label: "Touch Up", assignPosition: 2, operatorId: "" },
   // TODO(romscan): RomScan not yet implemented — uncomment when RomScan service is ready
   // { label: 'Romscan', assignPosition: 3, operatorId: '' },
@@ -125,14 +125,14 @@ const openAssignmentModal = () => {
   form[0].operatorId =
     ops.find((o) => o.workPosition.includes("CameraCheck"))?.id.toString() ||
     "";
+  // form[1].operatorId =
+  //   ops.find((o) => o.workPosition.includes("VisualCheck"))?.id.toString() ||
+  //   "";
   form[1].operatorId =
-    ops.find((o) => o.workPosition.includes("VisualCheck"))?.id.toString() ||
-    "";
-  form[2].operatorId =
     ops.find((o) => o.workPosition.includes("TouchUp"))?.id.toString() || "";
   // TODO(romscan): RomScan assignment not yet implemented — uncomment when RomScan is ready
   // form[3].operatorId = ops.find(o => o.workPosition.includes('RomScan'))?.id.toString() || ''
-  form[3].operatorId =
+  form[2].operatorId =
     ops.find((o) => o.workPosition.includes("FinalInspect"))?.id.toString() ||
     "";
 
@@ -297,7 +297,7 @@ const selectedOperatorName = (index: number) => {
         <div
           v-for="position in [
             { key: 'CameraCheck', label: 'Camera Check' },
-            { key: 'VisualCheck', label: 'Visual Check' },
+            // { key: 'VisualCheck', label: 'Visual Check' },
             { key: 'TouchUp', label: 'Touch Up' },
             // TODO(romscan): RomScan station not yet implemented — uncomment when RomScan is ready
             // { key: 'RomScan', label: 'Romscan' },

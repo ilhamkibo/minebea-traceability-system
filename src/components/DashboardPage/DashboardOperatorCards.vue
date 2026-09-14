@@ -5,7 +5,7 @@ import { computed } from 'vue';
 
 const STATIONS = [
   { key: 'CameraCheck', label: 'Camera Check', color: 'bg-blue-500 dark:bg-blue-400', icon: Camera },
-  { key: 'VisualCheck', label: 'Visual Check', color: 'bg-green-500 dark:bg-green-400', icon: Eye },
+  // { key: 'VisualCheck', label: 'Visual Check', color: 'bg-green-500 dark:bg-green-400', icon: Eye },
   { key: 'TouchUp', label: 'Touch Up', color: 'bg-orange-500 dark:bg-orange-400', icon: Pencil },
   // TODO(romscan): RomScan station not yet implemented — uncomment when RomScan is ready
   // { key: 'RomScan', label: 'ROM Writing', color: 'bg-purple-500 dark:bg-purple-400', icon: MemoryStick },
