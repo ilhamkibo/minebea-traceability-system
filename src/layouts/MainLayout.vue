@@ -190,12 +190,12 @@ const handleAdminMenuClick = () => {
           <h1
             class="text-xl font-bold tracking-tight text-slate-900 dark:text-white"
           >
-            SHINSEI <span class="text-brand-accent">DENSHI</span>
+            TOHO <span class="text-brand-accent">TECHNOLOGYA</span>
           </h1>
           <p
             class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-widest"
           >
-            Minebea Line Traceability System
+            Line Traceability System
           </p>
         </div>
         <button
