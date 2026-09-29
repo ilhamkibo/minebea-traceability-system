@@ -1,19 +1,28 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
+import type { PcbData } from '@/types/pcb'
 
 const props = defineProps<{
-  pcb: any
+  pcb: PcbData
 }>()
 
-const getMaxRows = (pcb: any) => {
+const getMaxRows = (pcb: PcbData) => {
   return Math.max(
     1,
     pcb.cameraChecks?.length || 0,
     pcb.visualChecks?.length || 0,
     pcb.touchUps?.length || 0,
-    pcb.romScans?.length || 0,
     pcb.finalInspecs?.length || 0
   )
+}
+
+/** Index data di array untuk rowIndex tertentu (bottom-aligned).
+ *  Mengembalikan -1 jika row ini adalah baris kosong (strip "-"). */
+const dataIdx = (arr: unknown[] | undefined, rowIndex: number): number => {
+  if (!arr || arr.length === 0) return -1
+  const offset = getMaxRows(props.pcb) - arr.length
+  if (rowIndex <= offset) return -1
+  return rowIndex - offset - 1
 }
 
 const formatDate = (date: string | undefined) => {
@@ -34,10 +43,10 @@ const formatDate = (date: string | undefined) => {
       </td>
 
       <!-- Camera Check -->
-      <template v-if="pcb.cameraChecks && pcb.cameraChecks[rowIndex - 1]">
-        <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-[11px] text-slate-600 dark:text-slate-400">{{ formatDate(pcb.cameraChecks[rowIndex - 1].createdAt) }}</td>
-        <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-xs text-slate-700 dark:text-slate-300">{{ pcb.cameraChecks[rowIndex - 1].operatorName }}</td>
-        <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-[11px] font-bold" :class="pcb.cameraChecks[rowIndex - 1].judgement === 'OK' ? 'text-emerald-600' : 'text-rose-600'">{{ pcb.cameraChecks[rowIndex - 1].judgement }}</td>
+      <template v-if="pcb.cameraChecks && pcb.cameraChecks.length > 0 && dataIdx(pcb.cameraChecks, rowIndex) >= 0">
+        <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-[11px] text-slate-600 dark:text-slate-400">{{ formatDate(pcb.cameraChecks[dataIdx(pcb.cameraChecks, rowIndex)].createdAt) }}</td>
+        <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-xs text-slate-700 dark:text-slate-300">{{ pcb.cameraChecks[dataIdx(pcb.cameraChecks, rowIndex)].operatorName }}</td>
+        <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-[11px] font-bold" :class="pcb.cameraChecks[dataIdx(pcb.cameraChecks, rowIndex)].judgement === 'OK' ? 'text-emerald-600' : 'text-rose-600'">{{ pcb.cameraChecks[dataIdx(pcb.cameraChecks, rowIndex)].judgement }}</td>
       </template>
       <template v-else-if="!pcb.cameraChecks || pcb.cameraChecks.length === 0">
         <td v-if="rowIndex === 1" :rowspan="getMaxRows(pcb)" colspan="3" class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-slate-300 dark:text-slate-600 bg-slate-50/30 dark:bg-slate-800/30">-</td>
@@ -49,10 +58,10 @@ const formatDate = (date: string | undefined) => {
       </template>
 
       <!-- Visual Check -->
-      <template v-if="pcb.visualChecks && pcb.visualChecks[rowIndex - 1]">
-        <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-[11px] text-slate-600 dark:text-slate-400">{{ formatDate(pcb.visualChecks[rowIndex - 1].createdAt) }}</td>
-        <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-xs text-slate-700 dark:text-slate-300">{{ pcb.visualChecks[rowIndex - 1].operatorName }}</td>
-        <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-[11px] font-bold" :class="pcb.visualChecks[rowIndex - 1].judgement === 'OK' ? 'text-emerald-600' : 'text-rose-600'">{{ pcb.visualChecks[rowIndex - 1].judgement }}</td>
+      <template v-if="pcb.visualChecks && pcb.visualChecks.length > 0 && dataIdx(pcb.visualChecks, rowIndex) >= 0">
+        <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-[11px] text-slate-600 dark:text-slate-400">{{ formatDate(pcb.visualChecks[dataIdx(pcb.visualChecks, rowIndex)].createdAt) }}</td>
+        <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-xs text-slate-700 dark:text-slate-300">{{ pcb.visualChecks[dataIdx(pcb.visualChecks, rowIndex)].operatorName }}</td>
+        <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-[11px] font-bold" :class="pcb.visualChecks[dataIdx(pcb.visualChecks, rowIndex)].judgement === 'OK' ? 'text-emerald-600' : 'text-rose-600'">{{ pcb.visualChecks[dataIdx(pcb.visualChecks, rowIndex)].judgement }}</td>
       </template>
       <template v-else-if="!pcb.visualChecks || pcb.visualChecks.length === 0">
         <td v-if="rowIndex === 1" :rowspan="getMaxRows(pcb)" colspan="3" class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-slate-300 dark:text-slate-600 bg-slate-50/30 dark:bg-slate-800/30">-</td>
@@ -64,9 +73,9 @@ const formatDate = (date: string | undefined) => {
       </template>
 
       <!-- Touch Up -->
-      <template v-if="pcb.touchUps && pcb.touchUps[rowIndex - 1]">
-        <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-[11px] text-slate-600 dark:text-slate-400">{{ formatDate(pcb.touchUps[rowIndex - 1].createdAt) }}</td>
-        <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-xs text-slate-700 dark:text-slate-300">{{ pcb.touchUps[rowIndex - 1].operatorName }}</td>
+      <template v-if="pcb.touchUps && pcb.touchUps.length > 0 && dataIdx(pcb.touchUps, rowIndex) >= 0">
+        <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-[11px] text-slate-600 dark:text-slate-400">{{ formatDate(pcb.touchUps[dataIdx(pcb.touchUps, rowIndex)].createdAt) }}</td>
+        <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-xs text-slate-700 dark:text-slate-300">{{ pcb.touchUps[dataIdx(pcb.touchUps, rowIndex)].operatorName }}</td>
         <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-[11px] font-bold text-blue-600 dark:text-blue-400">Done</td>
       </template>
       <template v-else-if="!pcb.touchUps || pcb.touchUps.length === 0">
@@ -95,9 +104,9 @@ const formatDate = (date: string | undefined) => {
       </template> -->
 
       <!-- Final Inspect -->
-      <template v-if="pcb.finalInspecs && pcb.finalInspecs[rowIndex - 1]">
-        <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-[11px] text-slate-600 dark:text-slate-400">{{ formatDate(pcb.finalInspecs[rowIndex - 1].createdAt) }}</td>
-        <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-xs text-slate-700 dark:text-slate-300">{{ pcb.finalInspecs[rowIndex - 1].operatorName }}</td>
+      <template v-if="pcb.finalInspecs && pcb.finalInspecs.length > 0 && dataIdx(pcb.finalInspecs, rowIndex) >= 0">
+        <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-[11px] text-slate-600 dark:text-slate-400">{{ formatDate(pcb.finalInspecs[dataIdx(pcb.finalInspecs, rowIndex)].createdAt) }}</td>
+        <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-xs text-slate-700 dark:text-slate-300">{{ pcb.finalInspecs[dataIdx(pcb.finalInspecs, rowIndex)].operatorName }}</td>
         <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-[11px] font-bold text-blue-600 dark:text-blue-400">Done</td>
       </template>
       <template v-else-if="!pcb.finalInspecs || pcb.finalInspecs.length === 0">

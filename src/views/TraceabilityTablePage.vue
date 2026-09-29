@@ -113,6 +113,17 @@ const getMaxRows = (pcb: any) => {
   );
 };
 
+const dataIdx = (
+  arr: unknown[] | undefined,
+  maxRows: number,
+  rowIndex: number,
+): number => {
+  if (!arr || arr.length === 0) return -1;
+  const offset = maxRows - arr.length;
+  if (rowIndex < offset) return -1;
+  return rowIndex - offset;
+};
+
 const handleQuickFilter = (val: string) => {
   switch (val) {
     case "today":
@@ -193,9 +204,6 @@ const handleExport = async () => {
       "Touch Up Date",
       "Touch Up Operator",
       "Touch Up Result",
-      "ROM Scan Date",
-      "ROM Scan Operator",
-      "ROM Scan Result",
       "Final Inspect Date",
       "Final Inspect Operator",
       "Final Inspect Result",
@@ -206,28 +214,38 @@ const handleExport = async () => {
     allRecords.forEach((pcb) => {
       const maxRows = getMaxRows(pcb);
       for (let i = 0; i < maxRows; i++) {
+        const cIdx = dataIdx(pcb.cameraChecks, maxRows, i);
+        const vIdx = dataIdx(pcb.visualChecks, maxRows, i);
+        const tIdx = dataIdx(pcb.touchUps, maxRows, i);
+        const fIdx = dataIdx(pcb.finalInspecs, maxRows, i);
+
+        const c = cIdx >= 0 ? pcb.cameraChecks?.[cIdx] : null;
+        const v = vIdx >= 0 ? pcb.visualChecks?.[vIdx] : null;
+        const t = tIdx >= 0 ? pcb.touchUps?.[tIdx] : null;
+        const f = fIdx >= 0 ? pcb.finalInspecs?.[fIdx] : null;
+
         const row = [
           `"${i === 0 ? pcb.value : ""}"`,
 
           // Camera
-          `"${formatDate(pcb.cameraChecks?.[i]?.createdAt)}"`,
-          `"${pcb.cameraChecks?.[i]?.operatorName || ""}"`,
-          `"${pcb.cameraChecks?.[i]?.judgement || ""}"`,
+          `"${c ? formatDate(c.createdAt) : "-"}"`,
+          `"${c ? c.operatorName || "" : "-"}"`,
+          `"${c ? c.judgement || "" : "-"}"`,
 
           // Visual
-          `"${formatDate(pcb.visualChecks?.[i]?.createdAt)}"`,
-          `"${pcb.visualChecks?.[i]?.operatorName || ""}"`,
-          `"${pcb.visualChecks?.[i]?.judgement || ""}"`,
+          `"${v ? formatDate(v.createdAt) : "-"}"`,
+          `"${v ? v.operatorName || "" : "-"}"`,
+          `"${v ? v.judgement || "" : "-"}"`,
 
           // Touch Up
-          `"${formatDate(pcb.touchUps?.[i]?.createdAt)}"`,
-          `"${pcb.touchUps?.[i]?.operatorName || ""}"`,
-          `"${pcb.touchUps?.[i] ? "Done" : ""}"`,
+          `"${t ? formatDate(t.createdAt) : "-"}"`,
+          `"${t ? t.operatorName || "" : "-"}"`,
+          `"${t ? "Done" : "-"}"`,
 
           // Final
-          `"${formatDate(pcb.finalInspecs?.[i]?.createdAt)}"`,
-          `"${pcb.finalInspecs?.[i]?.operatorName || ""}"`,
-          `"${pcb.finalInspecs?.[i] ? "Done" : ""}"`,
+          `"${f ? formatDate(f.createdAt) : "-"}"`,
+          `"${f ? f.operatorName || "" : "-"}"`,
+          `"${f ? "Done" : "-"}"`,
         ];
         csvRows.push(row.join(","));
       }
@@ -277,62 +295,28 @@ const handleExportExcel = async () => {
 
     const wsData: any[][] = [];
 
-    // Row 0: Main headers (first row of double header)
-    const headerRow1 = [
+    const headerRow = [
       "QR Code",
-      "Camera Check",
-      "",
-      "",
-      "Visual Check",
-      "",
-      "",
-      "Touch Up",
-      "",
-      "",
-      // TODO(romscan): ROM Scan header — uncomment when RomScan service is ready
-      // 'ROM Scan', '', '',
-      "Final Inspect",
-      "",
-      "",
+      "Camera Check Date",
+      "Camera Check Operator",
+      "Camera Check Result",
+      "Visual Check Date",
+      "Visual Check Operator",
+      "Visual Check Result",
+      "Touch Up Date",
+      "Touch Up Operator",
+      "Touch Up Result",
+      "Final Inspect Date",
+      "Final Inspect Operator",
+      "Final Inspect Result",
     ];
 
-    // Row 1: Sub headers (second row of double header)
-    const headerRow2 = [
-      "",
-      "Date&Time",
-      "Operator Name",
-      "Result",
-      "Date&Time",
-      "Operator Name",
-      "Result",
-      "Date&Time",
-      "Operator Name",
-      "Result",
-      // TODO(romscan): ROM Scan subheaders — uncomment when RomScan service is ready
-      // 'Date&Time', 'Operator Name', 'Result',
-      "Date&Time",
-      "Operator Name",
-      "Result",
-    ];
+    wsData.push(headerRow);
 
-    wsData.push(headerRow1);
-    wsData.push(headerRow2);
+    // Initialize merges list (no header merges)
+    const merges: XLSX.Range[] = [];
 
-    // Initialize merges list
-    const merges: XLSX.Range[] = [
-      // Merge QR Code vertically (A1:A2)
-      { s: { r: 0, c: 0 }, e: { r: 1, c: 0 } },
-      // Merge Camera Check horizontally (B1:D1)
-      { s: { r: 0, c: 1 }, e: { r: 0, c: 3 } },
-      // Merge Visual Check horizontally (E1:G1)
-      { s: { r: 0, c: 4 }, e: { r: 0, c: 6 } },
-      // Merge Touch Up horizontally (H1:J1)
-      { s: { r: 0, c: 7 }, e: { r: 0, c: 9 } },
-      // Merge Final Inspect horizontally (K1:M1)
-      { s: { r: 0, c: 10 }, e: { r: 0, c: 12 } },
-    ];
-
-    let currentRow = 2; // 0-indexed, row 0 and 1 are headers
+    let currentRow = 1; // 0-indexed, row 0 is header
 
     allRecords.forEach((pcb) => {
       const maxRows = getMaxRows(pcb);
@@ -345,10 +329,11 @@ const handleExportExcel = async () => {
         rowData[0] = i === 0 ? pcb.value : "";
 
         // Camera
-        if (pcb.cameraChecks && pcb.cameraChecks[i]) {
-          rowData[1] = formatDate(pcb.cameraChecks[i].createdAt);
-          rowData[2] = pcb.cameraChecks[i].operatorName || "";
-          rowData[3] = pcb.cameraChecks[i].judgement || "";
+        const cIdx = dataIdx(pcb.cameraChecks, maxRows, i);
+        if (cIdx >= 0 && pcb.cameraChecks?.[cIdx]) {
+          rowData[1] = formatDate(pcb.cameraChecks[cIdx].createdAt);
+          rowData[2] = pcb.cameraChecks[cIdx].operatorName || "";
+          rowData[3] = pcb.cameraChecks[cIdx].judgement || "";
         } else if (!pcb.cameraChecks || pcb.cameraChecks.length === 0) {
           if (i === 0) {
             rowData[1] = "-";
@@ -364,10 +349,11 @@ const handleExportExcel = async () => {
         }
 
         // Visual
-        if (pcb.visualChecks && pcb.visualChecks[i]) {
-          rowData[4] = formatDate(pcb.visualChecks[i].createdAt);
-          rowData[5] = pcb.visualChecks[i].operatorName || "";
-          rowData[6] = pcb.visualChecks[i].judgement || "";
+        const vIdx = dataIdx(pcb.visualChecks, maxRows, i);
+        if (vIdx >= 0 && pcb.visualChecks?.[vIdx]) {
+          rowData[4] = formatDate(pcb.visualChecks[vIdx].createdAt);
+          rowData[5] = pcb.visualChecks[vIdx].operatorName || "";
+          rowData[6] = pcb.visualChecks[vIdx].judgement || "";
         } else if (!pcb.visualChecks || pcb.visualChecks.length === 0) {
           if (i === 0) {
             rowData[4] = "-";
@@ -383,9 +369,10 @@ const handleExportExcel = async () => {
         }
 
         // Touch Up
-        if (pcb.touchUps && pcb.touchUps[i]) {
-          rowData[7] = formatDate(pcb.touchUps[i].createdAt);
-          rowData[8] = pcb.touchUps[i].operatorName || "";
+        const tIdx = dataIdx(pcb.touchUps, maxRows, i);
+        if (tIdx >= 0 && pcb.touchUps?.[tIdx]) {
+          rowData[7] = formatDate(pcb.touchUps[tIdx].createdAt);
+          rowData[8] = pcb.touchUps[tIdx].operatorName || "";
           rowData[9] = "Done";
         } else if (!pcb.touchUps || pcb.touchUps.length === 0) {
           if (i === 0) {
@@ -402,9 +389,10 @@ const handleExportExcel = async () => {
         }
 
         // Final Inspect
-        if (pcb.finalInspecs && pcb.finalInspecs[i]) {
-          rowData[10] = formatDate(pcb.finalInspecs[i].createdAt);
-          rowData[11] = pcb.finalInspecs[i].operatorName || "";
+        const fIdx = dataIdx(pcb.finalInspecs, maxRows, i);
+        if (fIdx >= 0 && pcb.finalInspecs?.[fIdx]) {
+          rowData[10] = formatDate(pcb.finalInspecs[fIdx].createdAt);
+          rowData[11] = pcb.finalInspecs[fIdx].operatorName || "";
           rowData[12] = "Done";
         } else if (!pcb.finalInspecs || pcb.finalInspecs.length === 0) {
           if (i === 0) {
@@ -441,43 +429,62 @@ const handleExportExcel = async () => {
     // Column widths
     ws["!cols"] = [
       { wch: 28 }, // QR Code
-      { wch: 18 },
-      { wch: 20 },
-      { wch: 14 }, // Camera Check
-      { wch: 18 },
-      { wch: 20 },
-      { wch: 14 }, // Visual Check
-      { wch: 18 },
-      { wch: 20 },
-      { wch: 12 }, // Touch Up
-      { wch: 18 },
-      { wch: 20 },
-      { wch: 12 }, // Final Inspect
+      { wch: 20 }, // Camera Check Date
+      { wch: 22 }, // Camera Check Operator
+      { wch: 18 }, // Camera Check Result
+      { wch: 20 }, // Visual Check Date
+      { wch: 22 }, // Visual Check Operator
+      { wch: 18 }, // Visual Check Result
+      { wch: 20 }, // Touch Up Date
+      { wch: 22 }, // Touch Up Operator
+      { wch: 16 }, // Touch Up Result
+      { wch: 20 }, // Final Inspect Date
+      { wch: 22 }, // Final Inspect Operator
+      { wch: 18 }, // Final Inspect Result
     ];
 
-    // Styles
-    const headerStyle1 = {
-      font: { bold: true, color: { rgb: "334155" }, size: 10 },
-      fill: { fgColor: { rgb: "E2E8F0" } }, // Slate 200
-      alignment: { horizontal: "center", vertical: "center", wrapText: true },
-      border: {
-        top: { style: "thin", color: { rgb: "CBD5E1" } },
-        bottom: { style: "thin", color: { rgb: "CBD5E1" } },
-        left: { style: "thin", color: { rgb: "CBD5E1" } },
-        right: { style: "thin", color: { rgb: "CBD5E1" } },
-      },
+    // Header Styles
+    const headerBorder = {
+      top: { style: "thin", color: { rgb: "CBD5E1" } },
+      bottom: { style: "thin", color: { rgb: "CBD5E1" } },
+      left: { style: "thin", color: { rgb: "CBD5E1" } },
+      right: { style: "thin", color: { rgb: "CBD5E1" } },
     };
 
-    const headerStyle2 = {
-      font: { bold: true, color: { rgb: "475569" }, size: 9 },
-      fill: { fgColor: { rgb: "F1F5F9" } }, // Slate 100
+    // Header colors: QR (Ungu), Camera (Biru Tua), Visual (Pink), Touch Up (Oren), Final Inspect (Ungu Muda)
+    const headerQrStyle = {
+      font: { bold: true, color: { rgb: "FFFFFF" }, size: 10 },
+      fill: { fgColor: { rgb: "581C87" } }, // Purple 900 (Ungu)
       alignment: { horizontal: "center", vertical: "center", wrapText: true },
-      border: {
-        top: { style: "thin", color: { rgb: "CBD5E1" } },
-        bottom: { style: "thin", color: { rgb: "CBD5E1" } },
-        left: { style: "thin", color: { rgb: "CBD5E1" } },
-        right: { style: "thin", color: { rgb: "CBD5E1" } },
-      },
+      border: headerBorder,
+    };
+
+    const headerCameraStyle = {
+      font: { bold: true, color: { rgb: "FFFFFF" }, size: 10 },
+      fill: { fgColor: { rgb: "1E3A8A" } }, // Blue 900 (Biru Tua)
+      alignment: { horizontal: "center", vertical: "center", wrapText: true },
+      border: headerBorder,
+    };
+
+    const headerVisualStyle = {
+      font: { bold: true, color: { rgb: "FFFFFF" }, size: 10 },
+      fill: { fgColor: { rgb: "DB2777" } }, // Pink 600 (Pink)
+      alignment: { horizontal: "center", vertical: "center", wrapText: true },
+      border: headerBorder,
+    };
+
+    const headerTouchUpStyle = {
+      font: { bold: true, color: { rgb: "FFFFFF" }, size: 10 },
+      fill: { fgColor: { rgb: "EA580C" } }, // Orange 600 (Oren)
+      alignment: { horizontal: "center", vertical: "center", wrapText: true },
+      border: headerBorder,
+    };
+
+    const headerFinalStyle = {
+      font: { bold: true, color: { rgb: "FFFFFF" }, size: 10 },
+      fill: { fgColor: { rgb: "A855F7" } }, // Purple 500 (Ungu Muda)
+      alignment: { horizontal: "center", vertical: "center", wrapText: true },
+      border: headerBorder,
     };
 
     const borderStyle = {
@@ -517,7 +524,7 @@ const handleExportExcel = async () => {
       border: borderStyle,
     };
 
-    const totalCols = headerRow1.length;
+    const totalCols = headerRow.length;
     const totalRows = wsData.length;
 
     for (let r = 0; r < totalRows; r++) {
@@ -528,9 +535,17 @@ const handleExportExcel = async () => {
         }
 
         if (r === 0) {
-          ws[cellRef].s = headerStyle1;
-        } else if (r === 1) {
-          ws[cellRef].s = headerStyle2;
+          if (c === 0) {
+            ws[cellRef].s = headerQrStyle;
+          } else if (c >= 1 && c <= 3) {
+            ws[cellRef].s = headerCameraStyle;
+          } else if (c >= 4 && c <= 6) {
+            ws[cellRef].s = headerVisualStyle;
+          } else if (c >= 7 && c <= 9) {
+            ws[cellRef].s = headerTouchUpStyle;
+          } else if (c >= 10 && c <= 12) {
+            ws[cellRef].s = headerFinalStyle;
+          }
         } else {
           const val = ws[cellRef].v;
           if (c === 0) {
