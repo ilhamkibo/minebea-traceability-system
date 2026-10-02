@@ -214,14 +214,10 @@ const handleExport = async () => {
     allRecords.forEach((pcb) => {
       const maxRows = getMaxRows(pcb);
       for (let i = 0; i < maxRows; i++) {
-        const cIdx = dataIdx(pcb.cameraChecks, maxRows, i);
-        const vIdx = dataIdx(pcb.visualChecks, maxRows, i);
-        const tIdx = dataIdx(pcb.touchUps, maxRows, i);
+        const c = pcb.cameraChecks?.[i] ?? null;
+        const v = pcb.visualChecks?.[i] ?? null;
+        const t = pcb.touchUps?.[i] ?? null;
         const fIdx = dataIdx(pcb.finalInspecs, maxRows, i);
-
-        const c = cIdx >= 0 ? pcb.cameraChecks?.[cIdx] : null;
-        const v = vIdx >= 0 ? pcb.visualChecks?.[vIdx] : null;
-        const t = tIdx >= 0 ? pcb.touchUps?.[tIdx] : null;
         const f = fIdx >= 0 ? pcb.finalInspecs?.[fIdx] : null;
 
         const row = [
@@ -329,11 +325,10 @@ const handleExportExcel = async () => {
         rowData[0] = i === 0 ? pcb.value : "";
 
         // Camera
-        const cIdx = dataIdx(pcb.cameraChecks, maxRows, i);
-        if (cIdx >= 0 && pcb.cameraChecks?.[cIdx]) {
-          rowData[1] = formatDate(pcb.cameraChecks[cIdx].createdAt);
-          rowData[2] = pcb.cameraChecks[cIdx].operatorName || "";
-          rowData[3] = pcb.cameraChecks[cIdx].judgement || "";
+        if (pcb.cameraChecks?.[i]) {
+          rowData[1] = formatDate(pcb.cameraChecks[i].createdAt);
+          rowData[2] = pcb.cameraChecks[i].operatorName || "";
+          rowData[3] = pcb.cameraChecks[i].judgement || "";
         } else if (!pcb.cameraChecks || pcb.cameraChecks.length === 0) {
           if (i === 0) {
             rowData[1] = "-";
@@ -349,11 +344,10 @@ const handleExportExcel = async () => {
         }
 
         // Visual
-        const vIdx = dataIdx(pcb.visualChecks, maxRows, i);
-        if (vIdx >= 0 && pcb.visualChecks?.[vIdx]) {
-          rowData[4] = formatDate(pcb.visualChecks[vIdx].createdAt);
-          rowData[5] = pcb.visualChecks[vIdx].operatorName || "";
-          rowData[6] = pcb.visualChecks[vIdx].judgement || "";
+        if (pcb.visualChecks?.[i]) {
+          rowData[4] = formatDate(pcb.visualChecks[i].createdAt);
+          rowData[5] = pcb.visualChecks[i].operatorName || "";
+          rowData[6] = pcb.visualChecks[i].judgement || "";
         } else if (!pcb.visualChecks || pcb.visualChecks.length === 0) {
           if (i === 0) {
             rowData[4] = "-";
@@ -369,10 +363,9 @@ const handleExportExcel = async () => {
         }
 
         // Touch Up
-        const tIdx = dataIdx(pcb.touchUps, maxRows, i);
-        if (tIdx >= 0 && pcb.touchUps?.[tIdx]) {
-          rowData[7] = formatDate(pcb.touchUps[tIdx].createdAt);
-          rowData[8] = pcb.touchUps[tIdx].operatorName || "";
+        if (pcb.touchUps?.[i]) {
+          rowData[7] = formatDate(pcb.touchUps[i].createdAt);
+          rowData[8] = pcb.touchUps[i].operatorName || "";
           rowData[9] = "Done";
         } else if (!pcb.touchUps || pcb.touchUps.length === 0) {
           if (i === 0) {
