@@ -241,7 +241,7 @@ const handleExport = async () => {
           // Final
           `"${f ? formatDate(f.createdAt) : "-"}"`,
           `"${f ? f.operatorName || "" : "-"}"`,
-          `"${f ? "Done" : "-"}"`,
+          `"${f ? "OK" : "-"}"`,
         ];
         csvRows.push(row.join(","));
       }
@@ -386,7 +386,7 @@ const handleExportExcel = async () => {
         if (fIdx >= 0 && pcb.finalInspecs?.[fIdx]) {
           rowData[10] = formatDate(pcb.finalInspecs[fIdx].createdAt);
           rowData[11] = pcb.finalInspecs[fIdx].operatorName || "";
-          rowData[12] = "Done";
+          rowData[12] = "OK";
         } else if (!pcb.finalInspecs || pcb.finalInspecs.length === 0) {
           if (i === 0) {
             rowData[10] = "-";
@@ -543,12 +543,14 @@ const handleExportExcel = async () => {
           const val = ws[cellRef].v;
           if (c === 0) {
             ws[cellRef].s = qrCodeStyle;
-          } else if ((c === 3 || c === 6) && val === "OK") {
+          } else if ((c === 3 || c === 6) && val.toLowerCase() === "ok") {
             ws[cellRef].s = okStyle;
-          } else if ((c === 3 || c === 6) && val === "NG") {
+          } else if ((c === 3 || c === 6) && val.toLowerCase() === "ng") {
             ws[cellRef].s = ngStyle;
-          } else if ((c === 9 || c === 12) && val === "Done") {
+          } else if ((c === 9 || c === 12) && val.toLowerCase() === "done") {
             ws[cellRef].s = doneStyle;
+          } else if ((c === 9 || c === 12) && val.toLowerCase() === "ok") {
+            ws[cellRef].s = okStyle;
           } else {
             ws[cellRef].s = defaultDataStyle;
           }

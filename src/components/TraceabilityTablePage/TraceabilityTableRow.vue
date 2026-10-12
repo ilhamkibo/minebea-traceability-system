@@ -107,7 +107,7 @@ const formatDate = (date: string | undefined) => {
       <template v-if="pcb.finalInspecs && pcb.finalInspecs.length > 0 && dataIdx(pcb.finalInspecs, rowIndex) >= 0">
         <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-[11px] text-slate-600 dark:text-slate-400">{{ formatDate(pcb.finalInspecs[dataIdx(pcb.finalInspecs, rowIndex)].createdAt) }}</td>
         <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-xs text-slate-700 dark:text-slate-300">{{ pcb.finalInspecs[dataIdx(pcb.finalInspecs, rowIndex)].operatorName }}</td>
-        <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-[11px] font-bold text-blue-600 dark:text-blue-400">Done</td>
+        <td class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-[11px] font-bold text-blue-600 dark:text-blue-400">OK</td>
       </template>
       <template v-else-if="!pcb.finalInspecs || pcb.finalInspecs.length === 0">
         <td v-if="rowIndex === 1" :rowspan="getMaxRows(pcb)" colspan="3" class="px-2 py-2 border border-slate-200 dark:border-slate-700 text-center text-slate-300 dark:text-slate-600 bg-slate-50/30 dark:bg-slate-800/30">-</td>
